@@ -113,6 +113,7 @@ public class MapGenerator : MonoBehaviour
 
                         hexagonTile.name = x + "," + y;
                         hexagonTile.layer = 6;
+
                         //// Spawn the object on top of the hexagon
                         //if (regions[i].detailPrefabs.Length > 0)
                         //{
