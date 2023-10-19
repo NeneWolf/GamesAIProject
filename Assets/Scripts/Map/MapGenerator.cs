@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class MapGenerator : MonoBehaviour
@@ -9,6 +10,8 @@ public class MapGenerator : MonoBehaviour
     public enum DrawMode { NoiseMap,FallOffMap,HexMap };
 
     public DrawMode drawMode;
+
+    [SerializeField]private GameObject TestHexDecor;
 
     [Header("Map Settings")]
     [SerializeField]private HexOrientation hexOrientation;
@@ -98,8 +101,29 @@ public class MapGenerator : MonoBehaviour
                 {
                     if (currentHeight <= regions[i].height && currentHeight > 0.2f) // Change this condition depending on the tile near the "lava"
                     {
+
+                        //Spawn the Hex Tiles
                         GameObject hexagonTile = Instantiate(regions[i].tilePrefab, HexMetrics.Center(hexSize, x, y, hexOrientation) + transform.position, Quaternion.identity);
+
+                        //Adjust their scale to the noise map height * meshHeightMultiplier
+                        hexagonTile.transform.localScale = new Vector3(hexagonTile.transform.localScale.x, meshHeightCurve.Evaluate(noiseMap[x, y]) * meshHeightMultiplier, hexagonTile.transform.localScale.z);
+                        
+                        //hexagonTile.AddComponent<MeshCollider>();
                         hexagonTile.transform.parent = transform;
+
+                        hexagonTile.name = x + "," + y;
+                        hexagonTile.layer = 6;
+                        //// Spawn the object on top of the hexagon
+                        //if (regions[i].detailPrefabs.Length > 0)
+                        //{
+                        //    int randomIndex = Random.Range(0, regions[i].detailPrefabs.Length);
+                        //    GameObject detail = Instantiate(regions[i].detailPrefabs[randomIndex], hexagonTile.transform.GetChild(0).position,Quaternion.identity);
+                        //    detail.transform.parent = hexagonTile.transform.GetChild(0).transform;
+                           
+                        //}
+
+                        //Instantiate(TestHexDecor, new Vector3(hexagonTile.transform.GetChild(0).transform.position.x, y * meshHeightMultiplier, hexagonTile.transform.GetChild(0).transform.position.y), Quaternion.identity);
+
                         break;
                     }
                 }
@@ -127,7 +151,6 @@ public class MapGenerator : MonoBehaviour
     private void DeleteAllchildren()
     {
         int childCount = this.gameObject.transform.childCount;
-        print("I am suppose to delete but i am not");
         for (int i = 0; i < childCount; i++)
         {
             DestroyImmediate(this.gameObject.transform.GetChild(0).gameObject);
@@ -151,6 +174,7 @@ public class MapGenerator : MonoBehaviour
         public string name;
         public float height;
         public GameObject tilePrefab;
+        public GameObject[] detailPrefabs;
 
     }
 }
