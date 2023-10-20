@@ -54,5 +54,4 @@ public static class HexMetrics
 
         return centerPoint;
     }
-
 }
