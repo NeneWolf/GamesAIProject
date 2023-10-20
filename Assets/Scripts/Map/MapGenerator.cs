@@ -114,13 +114,13 @@ public class MapGenerator : MonoBehaviour
                         hexagonTile.name = x + "," + y;
                         hexagonTile.layer = 6;
                         //// Spawn the object on top of the hexagon
-                        //if (regions[i].detailPrefabs.Length > 0)
-                        //{
-                        //    int randomIndex = Random.Range(0, regions[i].detailPrefabs.Length);
-                        //    GameObject detail = Instantiate(regions[i].detailPrefabs[randomIndex], hexagonTile.transform.GetChild(0).position,Quaternion.identity);
-                        //    detail.transform.parent = hexagonTile.transform.GetChild(0).transform;
-                           
-                        //}
+                        if (regions[i].detailPrefabs.Length > 0)
+                        {
+                            int randomIndex = Random.Range(0, regions[i].detailPrefabs.Length);
+                            GameObject detail = Instantiate(Instantiate(regions[i].detailPrefabs[randomIndex], new Vector3(hexagonTile.transform.transform.position.x, transform.position.y * meshHeightMultiplier, hexagonTile.transform.transform.position.z), Quaternion.identity));
+                            detail.transform.parent = hexagonTile.transform;
+
+                        }
 
                         //Instantiate(TestHexDecor, new Vector3(hexagonTile.transform.GetChild(0).transform.position.x, y * meshHeightMultiplier, hexagonTile.transform.GetChild(0).transform.position.y), Quaternion.identity);
 
