@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using Unity.VisualScripting;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,7 +13,8 @@ public class MapGenerator : MonoBehaviour
 
     public DrawMode drawMode;
 
-    [SerializeField]private GameObject TestHexDecor;
+    [SerializeField]private GameObject HexParent;
+    private GameObject emptyParent;
 
     [Header("Map Settings")]
     [SerializeField]private HexOrientation hexOrientation;
@@ -44,7 +46,11 @@ public class MapGenerator : MonoBehaviour
     public TileTypes[] regions;
 
     public bool useFallOff;
-    
+
+
+    GameObject hexagonTile;
+
+
     private void Awake()
     {
         fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);    
@@ -57,8 +63,14 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap()
     {
-        if (this.gameObject.transform.childCount != 0)
-            DeleteAllchildren();
+        if (HexParent.gameObject.transform.childCount != 0)
+        {
+            foreach (Transform child in HexParent.transform)
+            {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+            
 
         GeneratePerlinNoise();
         MapDisplay display = FindAnyObjectByType<MapDisplay>();
@@ -102,31 +114,41 @@ public class MapGenerator : MonoBehaviour
                 {
                     if (currentHeight <= regions[i].height && currentHeight > 0.2f) // Change this condition depending on the tile near the "lava"
                     {
+
+                        //Create Empty Parent for HexTile
+                        emptyParent = new GameObject("HexTileParent");
+                        emptyParent.transform.parent = HexParent.transform;
+
                         //Spawn the Hex Tiles
-                        GameObject hexagonTile = Instantiate(regions[i].tilePrefab, HexMetrics.Center(hexSize, x, y, hexOrientation) + transform.position, Quaternion.identity);
+                        hexagonTile = Instantiate(regions[i].tilePrefab, HexMetrics.Center(hexSize, x, y, hexOrientation) + transform.position, Quaternion.identity);
+
+                        //Change the information
                         hexagonTile.name = x + "," + y;
                         hexagonTile.layer = 6;
     
-                        hexagonTile.transform.localScale = new Vector3(hexagonTile.transform.localScale.x, meshHeightCurve.Evaluate(noiseMap[x, y]) * meshHeightMultiplier, hexagonTile.transform.localScale.z);
-
-                        Vector3 thisObjectMeshBounds = hexagonTile.GetComponent<MeshFilter>().mesh.bounds.extents;
-                        Vector3 currentGlobalScale = hexagonTile.transform.lossyScale;
+                        hexagonTile.transform.localScale = new Vector3(5, meshHeightCurve.Evaluate(noiseMap[x, y]) * meshHeightMultiplier, 5);
+                        hexagonTile.transform.parent = emptyParent.transform;
 
                         ////// Spawn the object on top of the hexagon
                         if (regions[i].detailPrefabs.Length > 0)
                         {
                             int randomIndex = Random.Range(0, regions[i].detailPrefabs.Length);
-
-                            GameObject detail = Instantiate(regions[i].detailPrefabs[randomIndex], hexagonTile.transform.position + new Vector3(0,thisObjectMeshBounds.y * currentGlobalScale.y,0), Quaternion.identity);
-                            detail.transform.parent = hexagonTile.transform;
+                            GameObject detail = Instantiate(regions[i].detailPrefabs[randomIndex], hexagonTile.transform.position, hexagonTile.transform.transform.rotation, emptyParent.transform);
+                            detail.GetComponent<DetailMovement>().UpdatePosition();
                         }
-                        hexagonTile.transform.parent = transform;
+
                         break;
                     }
                 }
             }
         }
     }
+
+    public GameObject ReturnTileParent()
+    {
+        return hexagonTile;
+    }
+
     //private void OnDrawGizmos()
     //{
     //    for (int x = 0; x < mapHeight; x++)
