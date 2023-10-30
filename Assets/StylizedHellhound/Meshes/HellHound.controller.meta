@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7a161d0a24505314aa7aac2200b625a3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 210168
+  packageName: Stylized Fantasy Hell Hound
+  packageVersion: 1.0
+  assetPath: Assets/StylizedHellhound/Meshes/HellHound.controller
+  uploadId: 518602
