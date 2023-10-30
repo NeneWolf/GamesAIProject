@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public class MapGenerator : MonoBehaviour
@@ -62,6 +65,9 @@ public class MapGenerator : MonoBehaviour
     bool hasSpawnCastle = false;
     bool hasSpawnEnemyCastle = false;
 
+    [Header("NavMesh")]
+    GameObject surface;
+
 
     private void Awake()
     {
@@ -104,14 +110,21 @@ public class MapGenerator : MonoBehaviour
         if(playerArea.Count > 0) playerArea.Clear();
         if(enemyArea.Count > 0) enemyArea.Clear();
 
+        //Check if there is any HexParents in the scene
+        GameObject[] var = GameObject.FindGameObjectsWithTag("MapTiles");
 
-        //Create the "HexParent" Object
-        if (HexParent != null)
+        //Destroy all if found more then 1
+        if (HexParent != null || var.Length > 1)
         {
-            DestroyImmediate(HexParent);
+            foreach (GameObject obj in var)
+            {
+                DestroyImmediate(obj);
+            }
         }
 
+        //Create the "HexParent" Object
         HexParent = new GameObject("HexParentTiles");
+        HexParent.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
         HexParent.transform.position = Vector3.zero;
         HexParent.transform.tag = "MapTiles";
 
@@ -153,9 +166,8 @@ public class MapGenerator : MonoBehaviour
                         if (spawnDecor)
                         {
                             SpawnMapDecoration(hexagonTile, i);
-
                         }
- 
+                    
                         break;
                     }
                 }
@@ -197,6 +209,9 @@ public class MapGenerator : MonoBehaviour
                 enemyArea.Clear();
             }
         }
+
+        //Generate navmesh
+        GenerateNavMesh();
     }
 
     void SpawnMapDecoration(GameObject hexagonTile, int i)
@@ -284,6 +299,13 @@ public class MapGenerator : MonoBehaviour
         public GameObject detailPrefab;
         public float spawnChange;
     }
+
+    //Generate Mesh at runTime
+    void GenerateNavMesh()
+    {
+        HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().BuildNavMesh();
+    }
+
 }
 
 public enum HexOrientation
@@ -291,6 +313,9 @@ public enum HexOrientation
     FlatTop,
     PointyTop
 }
+
+//Generate nav mesh
+
 
 
 

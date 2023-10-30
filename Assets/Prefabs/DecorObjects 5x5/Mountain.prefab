@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23188883509378900}
   - component: {fileID: 65771463484449570}
   - component: {fileID: 7533909605257145473}
+  - component: {fileID: 2136828096412830256}
   m_Layer: 0
   m_Name: Mountain
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &2136828096412830256
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884904741310042}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.462, y: 0.356, z: 0.53300005}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.55600005, z: 0}
+  m_TimeToStationary: 0.5

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23112946015471910}
   - component: {fileID: 65383272214860820}
   - component: {fileID: -5893968551264920624}
+  - component: {fileID: -6987573889125730295}
   m_Layer: 0
   m_Name: HellSpikes
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &-6987573889125730295
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874994982106528}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.42100003, y: 0.19500001, z: 0.32500002}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.021000002, y: 0.34500003, z: 0.042000003}
+  m_TimeToStationary: 0.5

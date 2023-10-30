@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23391248959032200}
   - component: {fileID: 65356083075971528}
   - component: {fileID: 1139129475095048610}
+  - component: {fileID: 8357152222111303675}
   m_Layer: 0
   m_Name: RockyEdge
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &8357152222111303675
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1038066931200580}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.29500002, y: 0.079, z: 0.446}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.22800002, y: 0.263, z: -0.127}
+  m_TimeToStationary: 0.5

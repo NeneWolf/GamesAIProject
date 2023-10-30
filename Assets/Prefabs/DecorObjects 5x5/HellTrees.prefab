@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23590201305408762}
   - component: {fileID: 65557724877288176}
   - component: {fileID: 8619257698207026157}
+  - component: {fileID: -2169734745044731899}
   m_Layer: 0
   m_Name: HellTrees
   m_TagString: Untagged
@@ -118,4 +119,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3de1524440b3c924b94169097a935c60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToSitOnTop: {fileID: 0}
+  parentObject: {fileID: 0}
+--- !u!208 &-2169734745044731899
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644743401066358}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.441, y: 0.19500001, z: 0.41500002}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.022000002, y: 0.363, z: -0.016}
+  m_TimeToStationary: 0.5

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23475093091417382}
   - component: {fileID: 65029581028723634}
   - component: {fileID: -4465559624117981788}
+  - component: {fileID: 1704650048957746988}
   m_Layer: 0
   m_Name: EvilCastle
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &1704650048957746988
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1970677826219172}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.485, y: 0.45100003, z: 0.592}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.652, z: -0.032}
+  m_TimeToStationary: 0.5

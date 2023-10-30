@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23529404388126336}
   - component: {fileID: 65474192829526424}
   - component: {fileID: 3750603314593853869}
+  - component: {fileID: 456710712002234121}
   m_Layer: 0
   m_Name: GlaciersOnWater
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &456710712002234121
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1300946392728048}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.425, y: 0.060000002, z: 0.351}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.007, y: 0.261, z: -0.055000003}
+  m_TimeToStationary: 0.5

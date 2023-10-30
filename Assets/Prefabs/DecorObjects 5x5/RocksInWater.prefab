@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23768102129520526}
   - component: {fileID: 65756731629502744}
   - component: {fileID: -7186593456091371945}
+  - component: {fileID: -8258374152871330035}
   m_Layer: 0
   m_Name: RocksInWater
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &-8258374152871330035
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879852619728524}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.37300003, y: 0.117000006, z: 0.40500003}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.015000001, y: 0.31800002, z: -0.083000004}
+  m_TimeToStationary: 0.5

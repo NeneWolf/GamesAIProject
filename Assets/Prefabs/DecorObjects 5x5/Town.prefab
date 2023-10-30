@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23911871771440192}
   - component: {fileID: 65916672204413774}
   - component: {fileID: -5747392917118500563}
+  - component: {fileID: 2483692084804576583}
   m_Layer: 0
   m_Name: Town
   m_TagString: Untagged
@@ -119,3 +120,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentObject: {fileID: 0}
+--- !u!208 &2483692084804576583
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1321364810359602}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.467, y: 0.13800001, z: 0.40800002}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.001, y: 0.333, z: 0.07}
+  m_TimeToStationary: 0.5
