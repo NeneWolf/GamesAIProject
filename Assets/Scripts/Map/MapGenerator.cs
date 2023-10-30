@@ -68,10 +68,12 @@ public class MapGenerator : MonoBehaviour
     [Header("NavMesh")]
     GameObject surface;
 
+    [SerializeField] private GameObject hexagonGridPref;
+
 
     private void Awake()
     {
-        fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);    
+        fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);
     }
 
     private void GeneratePerlinNoise()
@@ -210,6 +212,9 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
+        //Generate Grid
+        CreateNewGrid();
+
         //Generate navmesh
         GenerateNavMesh();
     }
@@ -306,6 +311,36 @@ public class MapGenerator : MonoBehaviour
         HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().BuildNavMesh();
     }
 
+    void CreateNewGrid()
+    {
+       //Grid<StringGridObject> stringGrid = new HexagonGrid<StringGridObject>
+       //     (mapWidth, 
+       //     mapHeight, 
+       //     hexSize,
+       //     Vector3.zero, 
+       //     (HexagonGrid<PathNode> g, int x, int y) => new StringGridObject(g,x,y), 
+       //     hexagonGridPref);
+    }
+
+    //private void OnDrawGizmos()
+    //{
+    //    for (int x = 0; x < mapHeight; x++)
+    //    {
+    //        for (int z = 0; z < mapWidth; z++)
+    //        {
+
+    //            Vector3 centerPosition = HexMetrics.Center(hexSize, x, z, hexOrientation) + transform.position;
+    //            for (int s = 0; s < HexMetrics.GetCorners(hexSize, hexOrientation).Length; s++)
+    //            {
+
+    //                Vector3 start = HexMetrics.GetCorners(hexSize, hexOrientation)[s] + centerPosition;
+    //                Vector3 end = HexMetrics.GetCorners(hexSize, hexOrientation)[(s + 1) % HexMetrics.GetCorners(hexSize, hexOrientation).Length] + centerPosition;
+    //                Gizmos.DrawLine(start, end);
+    //            }
+    //        }
+    //    }
+    //}
+
 }
 
 public enum HexOrientation
@@ -313,8 +348,6 @@ public enum HexOrientation
     FlatTop,
     PointyTop
 }
-
-//Generate nav mesh
 
 
 
