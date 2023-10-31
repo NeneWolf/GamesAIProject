@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.AI.Navigation;
+using UnityEditor.Playables;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -163,6 +164,16 @@ public class MapGenerator : MonoBehaviour
     
                         hexagonTile.transform.localScale = new Vector3(5, meshHeightCurve.Evaluate(noiseMap[x, y]) * meshHeightMultiplier, 5);
                         hexagonTile.transform.parent = emptyParent.transform;
+
+                        //Add the HexTile script & information
+                        hexagonTile.AddComponent<HexTile>();
+                        hexagonTile.GetComponent<HexTile>().scale = hexagonTile.transform.localScale;
+                        hexagonTile.GetComponent<HexTile>().position = hexagonTile.transform.position;
+                        hexagonTile.GetComponent<HexTile>().offSetCoordinate = new Vector2Int(x, y);
+                        hexagonTile.GetComponent<HexTile>().cubeCoordinate = OffSetToCube(hexagonTile.GetComponent<HexTile>().offSetCoordinate);
+
+
+
                         AddTilesIntoSection(i);
 
 
@@ -216,7 +227,7 @@ public class MapGenerator : MonoBehaviour
         }
 
         //Generate Grid
-        //CreateNewGrid();
+        GetComponent<TileManager>().Assign();
 
         //Generate navmesh
         GenerateNavMesh();
@@ -346,6 +357,15 @@ public class MapGenerator : MonoBehaviour
     //    }
     //}
 
+
+    public static Vector3Int OffSetToCube(Vector2Int offset)
+    {
+        var q = offset.x - (offset.y - (offset.y % 2)) / 2;
+        var r = offset.y;
+        return new Vector3Int(q,r,-q-r);
+    }
+
+    
 }
 
 public enum HexOrientation

@@ -10,6 +10,7 @@ public class ClickToMove : MonoBehaviour
     EnemyPathFinding pathFinding;
     NavMeshAgent m_Agent;
     RaycastHit m_HitInfo = new RaycastHit();
+    private HexTile target;
 
     void Start()
     {
@@ -22,7 +23,7 @@ public class ClickToMove : MonoBehaviour
         pathFinding = GameObject.FindFirstObjectByType<MapGenerator>().enemyPathFindingGrid;
 
 
-        if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetMouseButtonDown(0))
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -42,7 +43,13 @@ public class ClickToMove : MonoBehaviour
                 //    }
                 //}
                 #endregion
-                m_Agent.destination = m_HitInfo.point;
+
+                if (m_HitInfo.collider.gameObject.TryGetComponent<HexTile>(out target))
+                {
+                    target.OnSelectTile();
+                    m_Agent.destination = m_HitInfo.point;
+                }
+
             }
         }
     }

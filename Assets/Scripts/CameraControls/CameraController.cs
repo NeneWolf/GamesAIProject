@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 
 public class CameraController : MonoBehaviour
 {
     public static CameraController instance;
 
+    [SerializeField] private Camera mainCamera;
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [SerializeField] private Transform cameraTransform; // May switch to Cinemachine if i have time - Switch to cinemachine and regret it...oh well its cute
     public Transform followTarget;
@@ -45,6 +47,10 @@ public class CameraController : MonoBehaviour
     Quaternion newrotation;
     float fieldOfView;
 
+    //
+    RaycastHit m_HitInfo = new RaycastHit();
+    private HexTile target;
+
     private void Awake()
     {
         instance = this;
@@ -59,21 +65,36 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        // TO DO
         //Will come back eventually to fix this ... not working - Add new camera for this to work and its too much effort
-        if(followTarget != null)
+        if (followTarget != null)
         {
             transform.position = followTarget.position;
         }
-        else{ 
+        else
+        {
             CameraControlMouse();
             CameraControlsKeyBoard();
         }
 
-
+        //TO DO
         //Change this to all wasd input
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             followTarget = null;
+        }
+
+        //Track Mouse
+        var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray,out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
+        {
+            Transform objectHit = m_HitInfo.transform;
+
+            if(m_HitInfo.collider.gameObject.TryGetComponent<HexTile>(out target))
+            {
+                target.OnHighlightTile();
+            }
         }
     }
 
@@ -203,9 +224,11 @@ public class CameraController : MonoBehaviour
 
     }
 
+    //TO DO
+    // CHANGE THE MOUSE INPUT ON Y TO STAY THE SAME !!!!!
     void HandleMouseInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(1))
         {
             // Raycast from the camera
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -218,7 +241,7 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButton(0) && isDragging)
+        if (Input.GetMouseButton(1) && isDragging)
         {
             // Raycast from the camera
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -234,7 +257,7 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(1))
         {
             // Stop dragging
             isDragging = false;
