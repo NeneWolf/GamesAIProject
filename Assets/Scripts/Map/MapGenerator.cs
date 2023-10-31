@@ -7,6 +7,8 @@ using UnityEngine.AI;
 
 public class MapGenerator : MonoBehaviour
 {
+    public EnemyPathFinding enemyPathFindingGrid;
+
     public enum DrawMode { NoiseMap,FallOffMap,HexMap };
 
     public DrawMode drawMode;
@@ -69,7 +71,7 @@ public class MapGenerator : MonoBehaviour
     GameObject surface;
 
     [SerializeField] private GameObject hexagonGridPref;
-
+    [SerializeField] private GameObject hexagonGridViewPrefab;
 
     private void Awake()
     {
@@ -91,7 +93,6 @@ public class MapGenerator : MonoBehaviour
         {
             for (int x = 0; x < mapWidth; x++)
             {
-
                 if (useFallOff)
                 {
                     noiseMap[x, y] = Mathf.Clamp01(noiseMap[x,y] - fallOffMap[x,y]);
@@ -99,6 +100,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
+        // ADD TO TURN ON THE PLANE TO VIEW THE NOISE MAP & FALL OFF MAP
         if (drawMode == DrawMode.NoiseMap)
             display.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap));
         else if (drawMode == DrawMode.FallOffMap)
@@ -106,6 +108,7 @@ public class MapGenerator : MonoBehaviour
         else if (drawMode == DrawMode.HexMap) { HexMapGenerator(); }
 
     }
+
     void HexMapGenerator()
     {
         //clean the list
@@ -213,7 +216,7 @@ public class MapGenerator : MonoBehaviour
         }
 
         //Generate Grid
-        CreateNewGrid();
+        //CreateNewGrid();
 
         //Generate navmesh
         GenerateNavMesh();
@@ -311,16 +314,18 @@ public class MapGenerator : MonoBehaviour
         HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().BuildNavMesh();
     }
 
-    void CreateNewGrid()
-    {
-       //Grid<StringGridObject> stringGrid = new HexagonGrid<StringGridObject>
-       //     (mapWidth, 
-       //     mapHeight, 
-       //     hexSize,
-       //     Vector3.zero, 
-       //     (HexagonGrid<PathNode> g, int x, int y) => new StringGridObject(g,x,y), 
-       //     hexagonGridPref);
-    }
+    //void CreateNewGrid()
+    //{
+    //    enemyPathFindingGrid = new EnemyPathFinding(mapWidth,mapHeight,(hexSize * 2) - 0.8f,hexagonGridPref);
+
+    //    for(int x = 0; x < mapWidth; x++)
+    //    {
+    //        for(int z = 0; z < mapHeight; z++)
+    //        {
+    //            Instantiate(hexagonGridViewPrefab, new Vector3(), Quaternion.identity);
+    //        }
+    //    }
+    //}
 
     //private void OnDrawGizmos()
     //{

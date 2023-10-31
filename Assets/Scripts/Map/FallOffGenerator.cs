@@ -15,7 +15,7 @@ public static class FallOffGenerator
                 float x = i / (float)mapWidth * 2 - 1;
                 float y = j / (float)mapHeight * 2 - 1;
 
-                //Find the largest value of x and y
+                //Find the largest value of x and z
                 float value = Mathf.Max(Mathf.Abs(x), Mathf.Abs(y));
 
                 map[i, j] = Evaluate(value);

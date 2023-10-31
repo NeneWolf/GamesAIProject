@@ -268,7 +268,7 @@ public class CameraController : MonoBehaviour
 
             //// Apply vertical rotation and clamp it to a desired vertical range (e.g., -45 to 45 degrees).
             //newrotation *= verticalRotation;
-            //newrotation.eulerAngles = new Vector3(Mathf.Clamp(newrotation.eulerAngles.x, 0, 60), newrotation.eulerAngles.y, newrotation.eulerAngles.z);
+            //newrotation.eulerAngles = new Vector3(Mathf.Clamp(newrotation.eulerAngles.x, 0, 60), newrotation.eulerAngles.z, newrotation.eulerAngles.z);
         }
 
         transform.rotation = Quaternion.Lerp(transform.rotation, newrotation, Time.deltaTime * movTime);
