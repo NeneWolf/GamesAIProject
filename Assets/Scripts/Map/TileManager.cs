@@ -71,26 +71,26 @@ public class TileManager : MonoBehaviour
 
     private void Awake()
     {
-        highTile = Instantiate(hexHighLightTile, Vector3.zero, Quaternion.identity);
-        selectorTile = Instantiate(hexSelectorTile, Vector3.zero, Quaternion.identity);
+        highTile = Instantiate(hexHighLightTile, new Vector3(0,20,0), Quaternion.identity);
+        selectorTile = Instantiate(hexSelectorTile, new Vector3(0, 20, 0), Quaternion.identity);
     }
 
     public void OnHighlightTile(HexTile tile)
     {
-        Vector3 parentPosition = tile.GetComponent<MeshFilter>().mesh.bounds.extents;
-        Vector3 currentGlobalScale = tile.scale;
-
-        highTile.transform.position = tile.position + new Vector3(0, parentPosition.y * currentGlobalScale.y + 0.5f, 0);
-        HighTiles = highTile.transform;
+        RaycastHit hit;
+        if (Physics.Raycast(tile.transform.position + new Vector3(0,50,0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
+        {
+            highTile.transform.position = new Vector3(tile.position.x, hit.point.y, tile.position.z);
+        }
     }
 
     public void OnSelectTile(HexTile tile)
     {
-        Vector3 parentPosition = tile.GetComponent<MeshFilter>().mesh.bounds.extents;
-        Vector3 currentGlobalScale = tile.scale;
-
-        selectorTile.transform.position = tile.position + new Vector3(0, parentPosition.y * currentGlobalScale.y + 0.5f, 0);
-        SelectorTiles = selectorTile.transform;
+        RaycastHit hit;
+        if (Physics.Raycast(tile.transform.position + new Vector3(0, 50, 0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
+        {
+            selectorTile.transform.position = new Vector3(tile.position.x, hit.point.y, tile.position.z);
+        }
     }
 
 }

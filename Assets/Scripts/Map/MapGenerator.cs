@@ -167,7 +167,8 @@ public class MapGenerator : MonoBehaviour
 
                         //Add the HexTile script & information
                         hexagonTile.AddComponent<HexTile>();
-                        hexagonTile.GetComponent<HexTile>().scale = hexagonTile.transform.localScale;
+                        hexagonTile.GetComponent<HexTile>().collisionMesh = hexagonTile.GetComponent<MeshFilter>().mesh.bounds.extents;
+                        hexagonTile.GetComponent<HexTile>().scale = hexagonTile.transform.lossyScale;
                         hexagonTile.GetComponent<HexTile>().position = hexagonTile.transform.position;
                         hexagonTile.GetComponent<HexTile>().offSetCoordinate = new Vector2Int(x, y);
                         hexagonTile.GetComponent<HexTile>().cubeCoordinate = OffSetToCube(hexagonTile.GetComponent<HexTile>().offSetCoordinate);
@@ -237,7 +238,6 @@ public class MapGenerator : MonoBehaviour
     {
         float randomIndex = Random.Range(0f, 1f);
 
-        print(randomIndex);
         if (regions[i].detailPrefabs.Length > 0)
         {
             //Spawn the decoration
@@ -319,8 +319,8 @@ public class MapGenerator : MonoBehaviour
         public float spawnChange;
     }
 
-    //Generate Mesh at runTime
-    void GenerateNavMesh()
+    //Generate Mesh at runTime // NOT THE BEST TO BE PUBLIC BUT IT IS WHAT IT IS...
+    public void GenerateNavMesh()
     {
         HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().BuildNavMesh();
     }

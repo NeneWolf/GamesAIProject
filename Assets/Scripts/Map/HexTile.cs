@@ -5,11 +5,13 @@ using UnityEngine;
 public class HexTile : MonoBehaviour
 {
     public Vector3 position;
+    public Vector3 collisionMesh;
     public Vector3 scale;
     public GameObject flow;
     public Vector2Int offSetCoordinate;
     public Vector3Int cubeCoordinate;
     public List<HexTile> neighbors;
+    public bool hasObjects = false;
 
     public void OnDrawGizmosSelected()
     {
