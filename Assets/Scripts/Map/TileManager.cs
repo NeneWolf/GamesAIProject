@@ -14,6 +14,8 @@ public class TileManager : MonoBehaviour
     private GameObject selectorTile;
 
     Dictionary<Vector3Int, HexTile> tiles;
+    //Testing
+    public List<HexTile> allHexigons;
 
     public Transform HighTiles;
     public Transform SelectorTiles;
@@ -37,9 +39,12 @@ public class TileManager : MonoBehaviour
             foreach(HexTile tile in hexTiles)
             {
                 List<HexTile> neighbors = GetNeightbour(tile);
-                tile.neighbors = neighbors;
+                tile.neighbours = neighbors;
             }
         }
+
+        //Testing
+        allHexigons = tiles.Values.ToList();
     }
 
     public void RegisterTile(HexTile tile)

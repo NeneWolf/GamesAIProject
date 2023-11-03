@@ -15,10 +15,15 @@ public class PathFinder : MonoBehaviour
         nodesNotEvaluated.Add(origin, startNode);
 
         bool gotPath = EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out List<HexTile> Path);
+        if (startNode == null)
+        {
+            Debug.LogError("startNode is null. Check the Node constructor.");
+            return null;
+        }
 
         while (!gotPath)
         {
-            gotPath = EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out Path);
+            EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out Path);
         }
 
         return Path;
@@ -57,17 +62,17 @@ public class PathFinder : MonoBehaviour
             return true;
         }
 
-        // otherwise, we need to evaluate the neighbors of the current node 
+        // otherwise, we need to evaluate the neighbours of the current node 
         List<Node> neightbours = new List<Node>();
 
-        foreach(HexTile tile in currentNode.target.neighbors)
+        foreach(HexTile tile in currentNode.target.neighbours)
         {
             Node node = new Node(tile, origin, destination, currentNode.GetCost());
 
             //if the node isn't something we can reverse
             if (tile.hasObjects)
             {
-                node.baseCost = 9999;
+                //node.baseCost = 9999;
                 continue;
             }
 
@@ -76,11 +81,13 @@ public class PathFinder : MonoBehaviour
 
         foreach(Node neighbour in neightbours)
         {
+            // if the tile has been already evaluated flly we can ignore it
             if (nodesAlreadyEvaluated.Keys.Contains(neighbour.target))
             {
                 continue;
             }
 
+            // if the cost is lower or if the tile isnt in the evaluated pile
             if(neighbour.GetCost() < currentNode.GetCost() ||
                 !nodesNotEvaluated.Keys.Contains(neighbour.target))
             {
@@ -98,7 +105,7 @@ public class PathFinder : MonoBehaviour
     // Find the cheapest node in the list
     public static Node GetCheapestNode(Node[] nodesNotEvaluated)
     {
-        //If it has no neighbors, return null
+        //If it has no neighbours, return null
         if (nodesNotEvaluated.Length == 0) { return null; }
 
         //if not , go over the rest

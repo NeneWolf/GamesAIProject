@@ -164,7 +164,7 @@ public class MapGenerator : MonoBehaviour
                         hexagonTile.transform.localScale = new Vector3(5, meshHeightCurve.Evaluate(noiseMap[x, y]) * meshHeightMultiplier, 5);
                         hexagonTile.transform.parent = emptyParent.transform;
 
-                        //Add the HexTile script & information
+                        //Add the HexTile script & information - could be cleaner later on
                         hexagonTile.AddComponent<HexTile>();
                         hexagonTile.GetComponent<HexTile>().collisionMesh = hexagonTile.GetComponent<MeshFilter>().sharedMesh.bounds.extents;
                         hexagonTile.GetComponent<HexTile>().scale = hexagonTile.transform.lossyScale;

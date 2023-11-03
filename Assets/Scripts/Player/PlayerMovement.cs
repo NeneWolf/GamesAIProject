@@ -10,12 +10,14 @@ using UnityEngine.UIElements;
 public class PlayerMovement : MonoBehaviour
 {
     List<HexTile> path;
+
     NavMeshAgent m_Agent;
+    NavMeshPath navMeshPath;
     LineRenderer renderer;
 
     RaycastHit m_HitInfo = new RaycastHit();
 
-    private HexTile target;
+    public HexTile target;
     public HexTile currentTile;
 
     void Start()
@@ -33,23 +35,41 @@ public class PlayerMovement : MonoBehaviour
 
             if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
             {
-                if (m_HitInfo.collider.gameObject.TryGetComponent<HexTile>(out target))
-                {
-                    // Get the tile target
-                    target.OnSelectTile();
-                    PathFinder.FindPath(currentTile, target);
-                }
+                // Get the tile target
+                m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
+                target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
+                path = PathFinder.FindPath(currentTile, target);
+                SetAgentPath(path);
             }
+        }
+    }
+
+    void SetAgentPath(List<HexTile> path)
+    {
+        if (path == null || path.Count == 0)
+        {
+            Debug.Log("Path is null or empty");
+            return;
+        }
+
+        m_Agent.CalculatePath(path[path.Count - 1].position, navMeshPath);
+
+        if (navMeshPath.status == NavMeshPathStatus.PathComplete)
+        {
+            m_Agent.SetPath(navMeshPath);
         }
     }
 
     public void OnDrawGizmos()
     {
+        // Debug.Log("Drawing gizmos");
         if (path != null)
         {
             foreach (HexTile tile in path)
             {
-                Gizmos.DrawCube(tile.transform.position + new Vector3(0, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+                Debug.Log("Drawing path");
+                Debug.Log(tile.transform.name);
+                Gizmos.DrawCube(tile.transform.position + new Vector3(0, 20f, 0), new Vector3(2, 2, 2));
             }
         }
     }

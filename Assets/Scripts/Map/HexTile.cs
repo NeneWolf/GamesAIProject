@@ -11,17 +11,17 @@ public class HexTile : MonoBehaviour
     public Vector2Int offSetCoordinate;
     public Vector3Int cubeCoordinate;
 
-    public List<HexTile> neighbors;
+    public List<HexTile> neighbours;
     public bool hasObjects = false;
 
     public void OnDrawGizmosSelected()
     {
-        foreach (HexTile neighbor in neighbors)
+        foreach (HexTile neighbour in neighbours)
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawSphere(position, 1f);
             Gizmos.color = Color.white;
-            Gizmos.DrawLine(transform.position, neighbor.transform.position);
+            Gizmos.DrawLine(transform.position, neighbour.transform.position);
         }
     }
 
