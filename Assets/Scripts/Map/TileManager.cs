@@ -1,13 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TileManager : MonoBehaviour
 {
     [SerializeField] GameObject hexHighLightTile;
     [SerializeField] GameObject hexSelectorTile;
+
     private GameObject highTile;
     private GameObject selectorTile;
+
     Dictionary<Vector3Int, HexTile> tiles;
 
     public Transform HighTiles;
@@ -78,6 +83,7 @@ public class TileManager : MonoBehaviour
     public void OnHighlightTile(HexTile tile)
     {
         RaycastHit hit;
+
         if (Physics.Raycast(tile.transform.position + new Vector3(0,50,0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
         {
             highTile.transform.position = new Vector3(tile.position.x, hit.point.y, tile.position.z);
@@ -87,10 +93,21 @@ public class TileManager : MonoBehaviour
     public void OnSelectTile(HexTile tile)
     {
         RaycastHit hit;
+
         if (Physics.Raycast(tile.transform.position + new Vector3(0, 50, 0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
         {
             selectorTile.transform.position = new Vector3(tile.position.x, hit.point.y, tile.position.z);
         }
     }
 
+    public HexTile GetRandomTile()
+    {
+        
+        return tiles.ElementAt(Random.Range(0, tiles.Count)).Value;
+    }
 }
+
+
+
+
+

@@ -1,56 +1,70 @@
 using System.Collections.Generic;
+using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 // Use physics raycast hit from mouse click to set agent destination
 [RequireComponent(typeof(NavMeshAgent))]
-public class ClickToMove : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
-    EnemyPathFinding pathFinding;
+    List<HexTile> path;
     NavMeshAgent m_Agent;
+    LineRenderer renderer;
+
     RaycastHit m_HitInfo = new RaycastHit();
+
     private HexTile target;
+    public HexTile currentTile;
 
     void Start()
     {
         m_Agent = GetComponent<NavMeshAgent>();
-
+        renderer = GetComponent<LineRenderer>();
     }
 
     void Update()
     {
-        pathFinding = GameObject.FindFirstObjectByType<MapGenerator>().enemyPathFindingGrid;
-
-
+        // Get tile from mouse click
         if (Input.GetMouseButtonDown(0))
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
             {
-                #region
-                //if (pathFinding != null)
-                //{
-                //    Vector3 worldPosition = m_HitInfo.point;
-                //    pathFinding.GetGrid().GetXZ(worldPosition, out int x, out int z);
-                //    List<PathNode> path = pathFinding.Findpath(0, 0, x, z);
-                //    if (path != null)
-                //    {
-                //        for (int i = 0; i < path.Count - 1; i++)
-                //            Debug.DrawLine(new Vector3(path[i].x, 0, path[i].z) * ((2.9f * 2f) - 0.8f), new Vector3(path[i + 1].x, 0, path[i + 1].z) * ((2.9f * 2f) - 0.8f), Color.red, 100f);
-
-                //    }
-                //}
-                #endregion
-
                 if (m_HitInfo.collider.gameObject.TryGetComponent<HexTile>(out target))
                 {
+                    // Get the tile target
                     target.OnSelectTile();
-                    m_Agent.destination = m_HitInfo.point;
+                    PathFinder.FindPath(currentTile, target);
                 }
-
             }
         }
     }
+
+    public void OnDrawGizmos()
+    {
+        if (path != null)
+        {
+            foreach (HexTile tile in path)
+            {
+                Gizmos.DrawCube(tile.transform.position + new Vector3(0, 0.5f, 0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+            }
+        }
+    }
+
+    //protected void UpdateLineRender(List<HexTile> tiles)
+    //{
+    //    if(renderer = null) { return; }
+
+    //    List<Vector3> positions = new List<Vector3>();
+    //    foreach(HexTile tile in tiles)
+    //    {
+    //        points.Add(tile.transform.position + new Vector3(0,0.5f,0));
+    //    }
+
+    //    renderer.positionCount = positions.Count;
+    //    renderer.SetPositions(positions.ToArray());
+    //}
 }

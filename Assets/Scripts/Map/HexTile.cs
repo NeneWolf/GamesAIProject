@@ -10,6 +10,7 @@ public class HexTile : MonoBehaviour
     public GameObject flow;
     public Vector2Int offSetCoordinate;
     public Vector3Int cubeCoordinate;
+
     public List<HexTile> neighbors;
     public bool hasObjects = false;
 

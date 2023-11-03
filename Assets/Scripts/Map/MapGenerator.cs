@@ -8,8 +8,6 @@ using UnityEngine.AI;
 
 public class MapGenerator : MonoBehaviour
 {
-    public EnemyPathFinding enemyPathFindingGrid;
-
     public enum DrawMode { NoiseMap,FallOffMap,HexMap };
 
     public DrawMode drawMode;
@@ -77,6 +75,7 @@ public class MapGenerator : MonoBehaviour
     private void Awake()
     {
         fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);
+        GenerateMap();
     }
 
     private void GeneratePerlinNoise()
@@ -167,7 +166,7 @@ public class MapGenerator : MonoBehaviour
 
                         //Add the HexTile script & information
                         hexagonTile.AddComponent<HexTile>();
-                        hexagonTile.GetComponent<HexTile>().collisionMesh = hexagonTile.GetComponent<MeshFilter>().mesh.bounds.extents;
+                        hexagonTile.GetComponent<HexTile>().collisionMesh = hexagonTile.GetComponent<MeshFilter>().sharedMesh.bounds.extents;
                         hexagonTile.GetComponent<HexTile>().scale = hexagonTile.transform.lossyScale;
                         hexagonTile.GetComponent<HexTile>().position = hexagonTile.transform.position;
                         hexagonTile.GetComponent<HexTile>().offSetCoordinate = new Vector2Int(x, y);
