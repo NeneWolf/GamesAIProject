@@ -28,6 +28,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        ////Movement();
+        TestingMovement();
+    }
+
+    void Movement()
+    {
         // Get tile from mouse click
         if (Input.GetMouseButtonDown(0))
         {
@@ -43,6 +49,21 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+
+    void TestingMovement()
+    {
+        // Get tile from mouse click
+        if (Input.GetMouseButtonDown(0))
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
+            {
+                m_Agent.SetDestination(m_HitInfo.point);
+            }
+        }
+    }
+
 
     void SetAgentPath(List<HexTile> path)
     {
