@@ -130,6 +130,8 @@ public class MapGenerator : MonoBehaviour
         //Create the "HexParent" Object
         HexParent = new GameObject("HexParentTiles");
         HexParent.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
+        HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().layerMask = LayerMask.GetMask("Nothing");
+        HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().layerMask = LayerMask.GetMask("Ground");
         HexParent.transform.position = Vector3.zero;
         HexParent.transform.tag = "MapTiles";
 
