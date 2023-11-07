@@ -28,8 +28,9 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        ////Movement();
-        TestingMovement();
+        //TestingMovement();
+
+        Movement();
     }
 
     void Movement()
