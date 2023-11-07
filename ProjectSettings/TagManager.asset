@@ -6,6 +6,9 @@ TagManager:
   tags:
   - MapTiles
   - Enemy
+  - Village
+  - PlayerCastle
+  - EnemySpawnCastle
   layers:
   - Default
   - TransparentFX
@@ -14,7 +17,7 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
+  - Targets
   - 
   - 
   - 

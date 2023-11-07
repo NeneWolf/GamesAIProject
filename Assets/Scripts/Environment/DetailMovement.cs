@@ -14,7 +14,8 @@ public class DetailMovement : MonoBehaviour
 
     private void Awake()
     {
-        parentObject =  GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
+        //REMOVE THIS COMMENT LET IT BE ACTIVE JUST COMMENTED FOR TESTING AI
+        //parentObject =  GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
     }
 
     public void Start()
@@ -24,15 +25,16 @@ public class DetailMovement : MonoBehaviour
 
     public void UpdatePosition()
     {
-        parentObject.GetComponent<HexTile>().hasObjects = true;
+        //REMOVE THIS COMMENT LET IT BE ACTIVE JUST COMMENTED FOR TESTING AI
+        //parentObject.GetComponent<HexTile>().hasObjects = true;
 
-        this.transform.localScale = new Vector3(5, 5, 5);
+        //this.transform.localScale = new Vector3(5, 5, 5);
 
-        Vector3 parentPosition = parentObject.GetComponent<MeshFilter>().mesh.bounds.extents;
+        //Vector3 parentPosition = parentObject.GetComponent<MeshFilter>().mesh.bounds.extents;
 
-        Vector3 currentGlobalScale = parentObject.transform.lossyScale;
+        //Vector3 currentGlobalScale = parentObject.transform.lossyScale;
 
-        this.transform.position = transform.position + new Vector3(0, parentPosition.y * currentGlobalScale.y - 0.5f, 0);
+        //this.transform.position = transform.position + new Vector3(0, parentPosition.y * currentGlobalScale.y - 0.5f, 0);
 
     }
 
