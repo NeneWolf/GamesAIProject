@@ -1,34 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
 public class PathFinder : MonoBehaviour
 {
+    List<HexTile> path;
+
     public static List<HexTile> FindPath(HexTile origin, HexTile destination)
     {
         Dictionary<HexTile, Node> nodesNotEvaluated = new Dictionary<HexTile, Node>();
         Dictionary<HexTile, Node> nodesAlreadyEvaluated = new Dictionary<HexTile, Node>();
 
-        Node startNode = new Node(origin.GetComponent<HexTile>().gameObject, origin.GetComponent<HexTile>().gameObject, destination.GetComponent<HexTile>().gameObject, 0);
+        Node startNode = new Node(origin, origin, destination, 0);
 
         nodesNotEvaluated.Add(origin, startNode);
 
         bool gotPath = EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out List<HexTile> Path);
 
-        if (startNode == null)
-        {
-            Debug.LogError("startNode is null. Check the Node constructor.");
-            return null;
-        }
-
         while (!gotPath)
         {
-            EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out Path);
+            gotPath = EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out Path);
         }
 
+        Path.Reverse();
         return Path;
-
     }
 
     public static bool EvaluateNextNode(Dictionary<HexTile, Node> nodesNotEvaluated,
@@ -45,18 +42,18 @@ public class PathFinder : MonoBehaviour
             return false;
         }
 
-        nodesNotEvaluated.Remove(currentNode.target.GetComponent<HexTile>());
-        nodesAlreadyEvaluated.Add(currentNode.target.GetComponent<HexTile>(), currentNode);
+        nodesNotEvaluated.Remove(currentNode.target);
+        nodesAlreadyEvaluated.Add(currentNode.target, currentNode);
 
         Path = new List<HexTile>();
 
         //if we have reached the destination, we are done return true
         if(currentNode.target == destination)
         {
-            Path.Add(currentNode.target.GetComponent<HexTile>());
+            Path.Add(currentNode.target);
             while (currentNode.target != origin)
             {
-                Path.Add(currentNode.parent.target.GetComponent<HexTile>());
+                Path.Add(currentNode.parent.target);
                 currentNode = currentNode.parent;
             }
 
@@ -66,15 +63,15 @@ public class PathFinder : MonoBehaviour
         // otherwise, we need to evaluate the neighbours of the current node 
         List<Node> neightbours = new List<Node>();
 
-        foreach(HexTile tile in currentNode.target.GetComponent<HexTile>().neighbours)
+        foreach(HexTile tile in currentNode.target.neighbours)
         {
-            Node node = new Node(tile.GetComponent<HexTile>().gameObject, origin.GetComponent<HexTile>().gameObject, destination.GetComponent<HexTile>().gameObject, currentNode.GetCost());
+            Node node = new Node(tile, origin, destination, currentNode.GetCost());
 
             //if the node isn't something we can reverse
             if (tile.hasObjects)
             {
-                //node.baseCost = 9999;
-                continue;
+                node.baseCost = 9999;
+                //continue;
             }
 
             neightbours.Add(node);
@@ -83,19 +80,19 @@ public class PathFinder : MonoBehaviour
         foreach(Node neighbour in neightbours)
         {
             // if the tile has been already evaluated flly we can ignore it
-            if (nodesAlreadyEvaluated.Keys.Contains(neighbour.target.GetComponent<HexTile>()))
+            if (nodesAlreadyEvaluated.Keys.Contains(neighbour.target))
             {
                 continue;
             }
 
             // if the cost is lower or if the tile isnt in the evaluated pile
             if(neighbour.GetCost() < currentNode.GetCost() ||
-                !nodesNotEvaluated.Keys.Contains(neighbour.target.GetComponent<HexTile>()))
+                !nodesNotEvaluated.Keys.Contains(neighbour.target))
             {
                 neighbour.SetParent(currentNode);
-                if(!nodesNotEvaluated.Keys.Contains(neighbour.target.GetComponent<HexTile>()))
+                if(!nodesNotEvaluated.Keys.Contains(neighbour.target))
                 {
-                    nodesNotEvaluated.Add(neighbour.target.GetComponent<HexTile>(), neighbour);
+                    nodesNotEvaluated.Add(neighbour.target, neighbour);
                 }
             }
         }
@@ -128,4 +125,6 @@ public class PathFinder : MonoBehaviour
         }
         return selectedNode;
     }
+
+
 }

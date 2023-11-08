@@ -20,23 +20,36 @@ public class TileManager : MonoBehaviour
     public Transform HighTiles;
     public Transform SelectorTiles;
 
+    public TileManager instance;
+
+    public Vector3Int playerPos { get; internal set; }
+
+    private void Awake()
+    {
+        instance = this;
+
+        highTile = Instantiate(hexHighLightTile, new Vector3(0, 20, 0), Quaternion.identity);
+        selectorTile = Instantiate(hexSelectorTile, new Vector3(0, 20, 0), Quaternion.identity);
+    }
+
+
     public  void Assign()
     {
         tiles = new Dictionary<Vector3Int, HexTile>();
 
         //Check if there is any HexParents in the scene
         GameObject[] hexParent = GameObject.FindGameObjectsWithTag("MapTiles");
-        
-        foreach(GameObject hexGroup in hexParent)
+
+        foreach (GameObject hexGroup in hexParent)
         {
             HexTile[] hexTiles = hexGroup.GetComponentsInChildren<HexTile>();
 
-            foreach(HexTile tile in hexTiles)
+            foreach (HexTile tile in hexTiles)
             {
                 RegisterTile(tile);
             }
 
-            foreach(HexTile tile in hexTiles)
+            foreach (HexTile tile in hexTiles)
             {
                 List<HexTile> neighbors = GetNeightbour(tile);
                 tile.neighbours = neighbors;
@@ -79,11 +92,7 @@ public class TileManager : MonoBehaviour
         return neighbors;
     }
 
-    private void Awake()
-    {
-        highTile = Instantiate(hexHighLightTile, new Vector3(0,20,0), Quaternion.identity);
-        selectorTile = Instantiate(hexSelectorTile, new Vector3(0, 20, 0), Quaternion.identity);
-    }
+
 
     public void OnHighlightTile(HexTile tile)
     {
@@ -110,6 +119,7 @@ public class TileManager : MonoBehaviour
         
         return tiles.ElementAt(Random.Range(0, tiles.Count)).Value;
     }
+
 }
 
 

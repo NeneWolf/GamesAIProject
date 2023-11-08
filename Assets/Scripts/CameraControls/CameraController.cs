@@ -14,7 +14,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform cameraTransform; // May switch to Cinemachine if i have time - Switch to cinemachine and regret it...oh well its cute
     public Transform followTarget;
 
-    [Header("Camera Movement")]
+    [Header("Camera HandleFindPath")]
     [SerializeField] private float shiftSpeed;
     [SerializeField] private float Normalspeed;
     float currentSpeed;

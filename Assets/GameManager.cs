@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
 
     //Change to private later
     public bool hasDecor;
+
     private void Awake()
     {
         tileManager = FindFirstObjectByType<TileManager>();
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
     {
         tile = tileManager.GetRandomTile();
 
-        while (tile.hasObjects)
+        while (tile.hasObjects || tile == null)
         {
             tile = tileManager.GetRandomTile();
         }
