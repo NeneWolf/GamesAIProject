@@ -45,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
                 // Get the tile target
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
+
                 path = PathFinder.FindPath(currentTile, target);
                 SetAgentPath(path);
             }

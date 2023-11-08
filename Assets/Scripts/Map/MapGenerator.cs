@@ -326,39 +326,6 @@ public class MapGenerator : MonoBehaviour
         HexParent.GetComponent<Unity.AI.Navigation.NavMeshSurface>().BuildNavMesh();
     }
 
-    //void CreateNewGrid()
-    //{
-    //    enemyPathFindingGrid = new EnemyPathFinding(mapWidth,mapHeight,(hexSize * 2) - 0.8f,hexagonGridPref);
-
-    //    for(int x = 0; x < mapWidth; x++)
-    //    {
-    //        for(int z = 0; z < mapHeight; z++)
-    //        {
-    //            Instantiate(hexagonGridViewPrefab, new Vector3(), Quaternion.identity);
-    //        }
-    //    }
-    //}
-
-    //private void OnDrawGizmos()
-    //{
-    //    for (int x = 0; x < mapHeight; x++)
-    //    {
-    //        for (int z = 0; z < mapWidth; z++)
-    //        {
-
-    //            Vector3 centerPosition = HexMetrics.Center(hexSize, x, z, hexOrientation) + transform.position;
-    //            for (int s = 0; s < HexMetrics.GetCorners(hexSize, hexOrientation).Length; s++)
-    //            {
-
-    //                Vector3 start = HexMetrics.GetCorners(hexSize, hexOrientation)[s] + centerPosition;
-    //                Vector3 end = HexMetrics.GetCorners(hexSize, hexOrientation)[(s + 1) % HexMetrics.GetCorners(hexSize, hexOrientation).Length] + centerPosition;
-    //                Gizmos.DrawLine(start, end);
-    //            }
-    //        }
-    //    }
-    //}
-
-
     public static Vector3Int OffSetToCube(Vector2Int offset)
     {
         var q = offset.x - (offset.y - (offset.y % 2)) / 2;

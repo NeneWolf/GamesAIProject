@@ -258,6 +258,7 @@ GameObject:
   - component: {fileID: 4267136173630197025}
   - component: {fileID: 1443615479152332385}
   - component: {fileID: 3989964666650340342}
+  - component: {fileID: 7781242941628019722}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -341,6 +342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd105f76cdc13c345852aacd13a691fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  currentTile: {fileID: 0}
 --- !u!54 &4267136173630197025
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -484,6 +487,26 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &7781242941628019722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288838488412473346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c57e511b924b6f4daee6291ca4950f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parent: {fileID: 0}
+  target: {fileID: 0}
+  destination: {fileID: 0}
+  origin: {fileID: 0}
+  baseCost: 0
+  costFromOrigin: 0
+  costToDestination: 0
+  pathCost: 0
 --- !u!1 &1443879525342471426
 GameObject:
   m_ObjectHideFlags: 0
