@@ -1,62 +1,62 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 internal class IdleState : BaseState<EnemyStateMachine.EEnemyState>
 {
     EnemyStateMachine enemyStateMachine;
-    bool playerSpotted = false;
+    bool targetSpotted = false;
+    bool waiting;
 
-    public IdleState(EnemyStateMachine enemy) : base(EnemyStateMachine.EEnemyState.Idle)
+    public IdleState(EnemyStateMachine enemy, bool waiting) : base(EnemyStateMachine.EEnemyState.Idle)
     {
         // Constructor
 
         enemyStateMachine = enemy;
+        this.waiting = waiting;
     }
 
     public override void EnterState()
     {
-        Debug.Log("Entering Idle State");
         enemyStateMachine.InitialFindAllTargetsInformation();
-
         enemyStateMachine.UpdateAnimator("isIdle", true);
+
+        if (enemyStateMachine.canSeeTarget)
+        {
+            targetSpotted = true;
+        }
+        else { targetSpotted = false; waiting = true; enemyStateMachine.WaitForTime(10); }
     }
 
     public override void ExitState()
     {
-        Debug.Log("Exiting Idle State");
- 
         enemyStateMachine.UpdateAnimator("isIdle", false);
     }
 
     public override void UpdateState()
     {
-        // Implement the behavior that should occur while in the Idle state
-        Debug.Log("In Idle State");
-
         enemyStateMachine.FieldOfViewCheckForTargets();
 
-        if (enemyStateMachine.canSeePlayer)
+        if (enemyStateMachine.canSeeTarget)
         {
-            playerSpotted = true;
+            targetSpotted = true;
         }
-
+        else { targetSpotted = false; waiting = enemyStateMachine.waiting; }
     }
 
     public override EnemyStateMachine.EEnemyState GetNextState()
     {
-        Debug.Log("Getting next state from Idle State");
-        // Implement the logic to determine the next state (e.g., transition to Patrol or Chase based on certain conditions)
-        if ((enemyStateMachine.currentNumberOfVillages > 0 || enemyStateMachine.isPlayerCastleAlive || enemyStateMachine.isPlayerAlive) && !playerSpotted)
+        if ((enemyStateMachine.currentNumberOfVillages > 0 || enemyStateMachine.isPlayerCastleAlive || enemyStateMachine.isPlayerAlive) && !targetSpotted && waiting == false)
         {
             return EnemyStateMachine.EEnemyState.Patrol;
         }
-        else if (playerSpotted)
+        else if (targetSpotted)
         {
             return EnemyStateMachine.EEnemyState.Chase;
         }
         else
         {
-            return stateKey; // Stay in Idle state if no transition conditions are met
+            return stateKey; 
         }
     }
 

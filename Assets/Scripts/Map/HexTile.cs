@@ -10,9 +10,13 @@ public class HexTile : MonoBehaviour
     public GameObject flow;
     public Vector2Int offSetCoordinate;
     public Vector3Int cubeCoordinate;
+    public Vector3 surviceCoordinate;
 
     public List<HexTile> neighbours;
     public bool hasObjects = false;
+    public bool hasEnemy = false;
+
+    public GameObject enemy;
 
     public void OnDrawGizmosSelected()
     {
@@ -37,5 +41,33 @@ public class HexTile : MonoBehaviour
         tilemanager.OnSelectTile(this);
     }
 
-    //public bool isWalkable = false;
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            hasObjects = true;
+
+        }
+        else if(collision.gameObject.tag == "Enemy")
+        {
+            enemy = collision.gameObject;
+            hasObjects = true;
+            hasEnemy = true;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            hasObjects = false;
+        }
+        else if (collision.gameObject.tag == "Enemy")
+        {
+            hasObjects = false;
+            hasEnemy = false;
+            enemy = null;
+        }
+    }
 }

@@ -6,7 +6,9 @@ using UnityEngine;
 
 public class PathFinder : MonoBehaviour
 {
-    List<HexTile> path;
+    static Dictionary<HexTile, Node> analised = new Dictionary<HexTile, Node>();
+    static Dictionary<HexTile, Node> notanalised = new Dictionary<HexTile, Node>();
+
 
     public static List<HexTile> FindPath(HexTile origin, HexTile destination)
     {
@@ -23,6 +25,8 @@ public class PathFinder : MonoBehaviour
         {
             gotPath = EvaluateNextNode(nodesNotEvaluated, nodesAlreadyEvaluated, origin, destination, out Path);
         }
+        analised = nodesNotEvaluated;
+        notanalised = nodesAlreadyEvaluated;
 
         Path.Reverse();
         return Path;
@@ -126,5 +130,26 @@ public class PathFinder : MonoBehaviour
         return selectedNode;
     }
 
+    public List<HexTile> GetTileListAnalised()
+    {
+        List<HexTile> a = new List<HexTile>();
+        foreach (HexTile tile in analised.Keys)
+        {
+            a.Add(tile);
+        }
 
+        return a;
+    }
+
+
+    public List<HexTile> GetTileListNotAnalised()
+    {
+        List<HexTile> b = new List<HexTile>();
+        foreach (HexTile tile in notanalised.Keys)
+        {
+            b.Add(tile);
+        }
+        
+        return b;
+    }
 }

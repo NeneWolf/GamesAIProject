@@ -7,7 +7,7 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
     NavMeshAgent agent;
     bool playerSpotted;
 
-    public PatrolState(EnemyStateMachine enemyStateMachine, NavMeshAgent agent) : base(EnemyStateMachine.EEnemyState.Idle)
+    public PatrolState(EnemyStateMachine enemyStateMachine, NavMeshAgent agent) : base(EnemyStateMachine.EEnemyState.Patrol)
     {
         this.enemyStateMachine = enemyStateMachine;
         this.agent = agent;
@@ -16,16 +16,23 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("PatrolState");
 
         //TO BE CHANGED
         agent.SetDestination(RandomNavmeshLocation(enemyStateMachine.patrolRadius));
+
         enemyStateMachine.UpdateAnimator("isPatrolling",true);
+
+        enemyStateMachine.FieldOfViewCheckForTargets();
+
+        if (enemyStateMachine.canSeeTarget)
+        {
+            playerSpotted = true;
+        }
+        else { playerSpotted = false; }
     }
 
     public override void ExitState()
     {
-        Debug.Log("PatrolState Exit");
         enemyStateMachine.UpdateAnimator("isPatrolling", false);
     }
 
@@ -33,17 +40,16 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
     {
         if (agent.remainingDistance < 0.02f && !playerSpotted)
         {
-            Debug.Log("Going To Idle");
-            //enemyStateMachine.TransitionState(EnemyStateMachine.EEnemyState.Idle);
             return EnemyStateMachine.EEnemyState.Idle;
-
         }
         else if (playerSpotted)
         {
             return EnemyStateMachine.EEnemyState.Chase;
         }
         else
+        {
             return stateKey;
+        }
     }
 
 
@@ -64,10 +70,9 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void UpdateState()
     {
-        Debug.Log("PatrolState Update");
         enemyStateMachine.FieldOfViewCheckForTargets();
 
-        if (enemyStateMachine.canSeePlayer)
+        if (enemyStateMachine.canSeeTarget)
         {
             playerSpotted = true;
         }

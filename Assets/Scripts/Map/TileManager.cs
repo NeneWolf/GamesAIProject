@@ -9,6 +9,7 @@ public class TileManager : MonoBehaviour
 {
     [SerializeField] GameObject hexHighLightTile;
     [SerializeField] GameObject hexSelectorTile;
+    [SerializeField] GameObject hexSelectorAttackTile;
 
     private GameObject highTile;
     private GameObject selectorTile;
@@ -30,6 +31,7 @@ public class TileManager : MonoBehaviour
 
         highTile = Instantiate(hexHighLightTile, new Vector3(0, 20, 0), Quaternion.identity);
         selectorTile = Instantiate(hexSelectorTile, new Vector3(0, 20, 0), Quaternion.identity);
+        hexSelectorAttackTile = Instantiate(hexSelectorAttackTile, new Vector3(0, 20, 0), Quaternion.identity);
     }
 
 
@@ -106,18 +108,42 @@ public class TileManager : MonoBehaviour
 
     public void OnSelectTile(HexTile tile)
     {
-        RaycastHit hit;
+        RaycastHit[] hit = Physics.RaycastAll(tile.transform.position + new Vector3(0, 50, 0), Vector3.down, 100f);
 
-        if (Physics.Raycast(tile.transform.position + new Vector3(0, 50, 0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
+        foreach(RaycastHit h in hit)
         {
-            selectorTile.transform.position = new Vector3(tile.position.x, hit.point.y, tile.position.z);
+            if (h.collider.gameObject.layer == 6)
+            {
+                if (!h.collider.gameObject.GetComponent<HexTile>().hasObjects) 
+                { 
+                    selectorTile.transform.position = new Vector3(tile.position.x, h.point.y, tile.position.z);
+                    hexSelectorAttackTile.transform.position = Vector3.zero;
+                }
+                else if (h.collider.gameObject.GetComponent<HexTile>().hasObjects && h.collider.gameObject.GetComponent<HexTile>().hasEnemy) 
+                {
+                    selectorTile.transform.position = Vector3.zero;
+                    hexSelectorAttackTile.transform.position = new Vector3(tile.position.x, h.point.y, tile.position.z); 
+                }
+            }
         }
     }
 
     public HexTile GetRandomTile()
     {
-        
-        return tiles.ElementAt(Random.Range(0, tiles.Count)).Value;
+        HexTile spawnTile = tiles.ElementAt(Random.Range(0, tiles.Count)).Value;
+        if(spawnTile == null)
+        {
+            while(spawnTile == null)
+            {
+                spawnTile = tiles.ElementAt(Random.Range(0, tiles.Count)).Value;
+            }
+
+            return spawnTile;
+        }
+        else
+        {
+            return spawnTile;
+        }
     }
 
 }

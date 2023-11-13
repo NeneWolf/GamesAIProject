@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using Unity.VisualScripting;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,6 +10,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 {
     NavMeshAgent navMeshAgent;
     Animator animator;
+    SphereCollider sphereCollider;
 
     public GameObject enemy;
 
@@ -23,28 +25,35 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     //Tracking information
     public int currentNumberOfVillages;
-    GameObject[] villages;
-    GameObject closesVillage;
+    public GameObject[] villages;
+    public GameObject closesVillage;
 
     public bool isPlayerCastleAlive = true;
     GameObject playerCastle;
 
     public bool isPlayerAlive = true;
-    public GameObject player;
+    GameObject player;
+    public GameObject target;
 
     public int patrolRadius = 10;   
 
     [Header("FieldOfView")]
     [Space(10)]
-    public bool canSeePlayer = false;
-    public LayerMask whatIsPlayerMask;
+    public bool canSeeTarget = false;
+    public LayerMask whatIsTargetMask;
 
     [Space(10)]
-    public float radius;
+    public float radiusToCheck;
+    public float radiusToRunAway;
     [Range(0, 360)]
     public float angle;
 
     EEnemyState nextStateKey;
+    public EEnemyState currentStateDisplayTEST;
+
+    public bool waiting = true;
+
+    public bool isBeingAttacked;
 
     // Enum of the enemy states
     public enum EEnemyState
@@ -53,7 +62,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         Patrol,
         Heal,
         Chase,
-        Attack,
+        AttackMelee,
+        AttackRanged,
         Dead
     }
 
@@ -61,6 +71,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        sphereCollider = GetComponent<SphereCollider>();
+        sphereCollider.radius = radiusToRunAway;
         enemy = this.gameObject;
 
         AddStates();
@@ -77,13 +89,17 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         // Initialize the villages array
         villages = GameObject.FindGameObjectsWithTag("Village");
 
-        // Initialize the player castle
+        // Initialize the target castle
         playerCastle = GameObject.FindGameObjectWithTag("PlayerCastle");
+
+        // Initialize the target
+        player = GameObject.FindGameObjectWithTag("Player");
     }
 
 
     public void Update()
     {
+        currentStateDisplayTEST = currentState.stateKey;
         nextStateKey = currentState.GetNextState();
 
         if (!isTransitioningState && nextStateKey.Equals(currentState.stateKey))
@@ -94,7 +110,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         {
             TransitionState(nextStateKey);
         }
-
 
         if (currentHealth <= 0)
         {
@@ -107,79 +122,101 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     void AddStates()
     {
         // Initialize your enemy states and add them to the 'states' dictionary
-        states.Add(EEnemyState.Idle, new IdleState(this));
+        states.Add(EEnemyState.Idle, new IdleState(this,waiting));
         states.Add(EEnemyState.Patrol, new PatrolState(this, navMeshAgent));
         states.Add(EEnemyState.Heal, new HealState());
         states.Add(EEnemyState.Chase, new ChaseState(this,navMeshAgent));
-        states.Add(EEnemyState.Attack, new AttackState());
+        states.Add(EEnemyState.AttackMelee, new AttackState());
+        states.Add(EEnemyState.AttackRanged, new AttackRanged(this));
         states.Add(EEnemyState.Dead, new DeadState());
 
         // Set the initial state
         currentState = states[EEnemyState.Idle];
+        currentState.EnterState();
     }
 
-    public GameObject FindClosestTarget()
-    {
-        // Find the closest village
-        float closestDistance = Mathf.Infinity;
+    //public GameObject FindClosestTarget()
+    //{
+    //    // Find the closest village
+    //    float closestDistance = Mathf.Infinity;
 
-        if (currentNumberOfVillages > 0)
-        {
-            foreach (GameObject village in villages)
-            {
-                float distance = Vector3.Distance(transform.position, village.transform.position);
+    //    if (currentNumberOfVillages > 0)
+    //    {
+    //        foreach (GameObject village in villages)
+    //        {
+    //            float distance = Vector3.Distance(transform.position, village.transform.position);
 
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closesVillage = village;
-                }
-            }
+    //            if (distance < closestDistance)
+    //            {
+    //                closestDistance = distance;
+    //                closesVillage = village;
+    //            }
+    //        }
 
-            return closesVillage;
-        }
-        else if(currentNumberOfVillages == 0)
-        {
-            return playerCastle;
-        }
-        else
-        {
-            return player;
-        }
-    }
+    //        return closesVillage;
+    //    }
+    //    else if(currentNumberOfVillages == 0)
+    //    {
+    //        return playerCastle;
+    //    }
+    //    else
+    //    {
+    //        return target;
+    //    }
+    //}
 
     public void FieldOfViewCheckForTargets()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, radius, whatIsPlayerMask);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, radiusToCheck, whatIsTargetMask);
 
-        if(colliders.Length != 0)
+        if (colliders.Length >= 1)
         {
-            player = colliders[0].gameObject;
-
-            Vector3 directionToPlayer = (player.transform.position - transform.position).normalized;
-            if(Vector3.Angle(transform.forward, directionToPlayer) < angle / 2)
+            foreach (Collider col in colliders)
             {
-                float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+                Vector3 directionToPlayer = (col.transform.position - transform.position).normalized;
 
-                if (!Physics.Raycast(transform.forward, directionToPlayer, distanceToPlayer, whatIsPlayerMask))
+                if (Vector3.Angle(transform.forward, directionToPlayer) < angle / 2)
                 {
-                    canSeePlayer = true;
+                    float distanceToPlayer = Vector3.Distance(transform.position, col.transform.position);
+
+                    if (!Physics.Raycast(transform.forward, directionToPlayer, distanceToPlayer, whatIsTargetMask))
+                    {
+                        if (col.gameObject.tag == "Player" && currentNumberOfVillages == 0 && !isPlayerCastleAlive)
+                            target = col.gameObject;
+                        else if (currentNumberOfVillages > 0 && col.gameObject.tag == "Village")
+                            target = col.gameObject;
+                        else if (currentNumberOfVillages == 0 && isPlayerCastleAlive)
+                            target = playerCastle;
+                        else if(col.gameObject.tag == "Player" && colliders.Length == 2)
+                            target = col.gameObject;
+
+                        canSeeTarget = true;
+                    }
+                    else
+                    {
+                        canSeeTarget = false;
+                        target = null;
+                    }
                 }
-                else
+                else if (target == null)
                 {
-                    canSeePlayer = false;
+                    canSeeTarget = false;
+                    return;
                 }
             }
-            else
-            {
-                canSeePlayer = false;
-            }
         }
-        else if(colliders.Length == 0)
+        else if (colliders.Length == 0)
         {
-            canSeePlayer = false;
+            canSeeTarget = false;
+            return;
         }
+    }
 
+    public void TakeDamage(int damage)
+    {
+        isBeingAttacked = true;
+        target = player;
+        currentHealth -= damage;
     }
 
     public bool CheckNeedsHealingStates()
@@ -199,7 +236,46 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         animator.SetBool(animation, status);
     }
 
+    public void WaitForTime(int time)
+    {
+        StartCoroutine(Wait(time));
+    }
 
+    IEnumerator Wait(int amount)
+    {
+        waiting = true;
+        yield return new WaitForSeconds(amount);
+        waiting = false;
+    }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if(currentState.stateKey == EEnemyState.Chase)
+        {
+            currentState.OnTriggerEnter(other);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (currentState.stateKey == EEnemyState.Chase)
+        {
+            currentState.OnTriggerExit(other);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (currentState.stateKey == EEnemyState.Chase)
+        {
+            currentState.OnTriggerStay(other);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, 2);
+        Gizmos.DrawWireSphere(transform.position, 6);
+    }
 }
 

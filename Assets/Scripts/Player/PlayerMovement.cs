@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,45 +12,118 @@ using UnityEngine.UIElements;
 public class PlayerMovement : MonoBehaviour
 {
     TileManager instance;
-
-    List<HexTile> path;
-    List<HexTile> currentPath;
-
+    Animator animator;
     NavMeshAgent m_Agent;
     NavMeshPath navMeshPath;
-
     LineRenderer renderer;
+    PathFinder pathFinder;
 
+
+    [Header("Player Stats")]
+    int health = 100;
+    public int currentHealth;
+    public int attack;
+    public float movementSpeed = 2.0f;
+    bool isDead = false;
+
+    [Header("Pathfinding")]
     RaycastHit m_HitInfo = new RaycastHit();
-
     public HexTile target;
     public HexTile currentTile;
     public HexTile nextTile;
-
-    float movementSpeed = 2.0f;
-
+    public bool hasReachedDestination;
     public bool gotPath = false;
+    public bool displayPath = false;
+
+    List<HexTile> path;
+    List<HexTile> currentPath;
+    List<HexTile>analised = new List<HexTile>();
+    List<HexTile> notanalised = new List<HexTile>();
+
+    [Header("Enemy")]
+    public GameObject enemy;
+    public bool movingToEnemy;
+
+    [SerializeField] GameObject sword;
+    SwordBehaviour swordBehaviour;
+
+    public bool isAttacking;
 
     private void Awake()
     {
         m_Agent = GetComponent<NavMeshAgent>();
-        renderer = GetComponent<LineRenderer>();    
+        renderer = GetComponent<LineRenderer>();
+        animator = GetComponent<Animator>();
+        pathFinder = GameObject.FindAnyObjectByType<PathFinder>();
+        swordBehaviour = sword.GetComponent<SwordBehaviour>();
 
         if (renderer == null) { return; }
 
         navMeshPath = GetComponent<NavMeshAgent>().path;
         instance = FindAnyObjectByType<TileManager>();
+        renderer.enabled = false;
+
+        currentHealth = health;
     }
 
     void Update()
     {
-        HandleFindPath();
-        
-        if(gotPath)
+        if(currentHealth <= 0)
         {
-            HandleMovement();
+            isDead = true;
+            animator.SetBool("isDead", true);
+        }
 
-            //TestingMovement();
+        if (!isDead)
+        {
+            HandleFindPath();
+
+            if (gotPath)
+            {
+                HandleMovement();
+
+                //TestingMovement();
+            }
+
+            //animator
+            if (m_Agent.velocity.magnitude > 0.1f)
+            {
+                animator.SetBool("isWalking", true);
+            }
+            else
+            {
+                animator.SetBool("isWalking", false);
+            }
+
+            //Renderer path
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                displayPath = !displayPath;
+                renderer.enabled = displayPath;
+            }
+
+            if (movingToEnemy && hasReachedDestination)
+            {
+                FindEnemy();
+
+                if (enemy != null)
+                {
+                    HandleAttack();
+                }
+                else
+                {
+                    isAttacking = false;
+                    animator.SetBool("isAttacking", false);
+                }
+            }
+            else
+            {
+                isAttacking = false;
+                if(animator.GetBool("isAttacking") == true)
+                {
+                    animator.SetBool("isAttacking", false);
+                }
+            }
         }
     }
 
@@ -60,17 +134,50 @@ public class PlayerMovement : MonoBehaviour
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
+            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && !m_HitInfo.collider.GetComponent<HexTile>().hasObjects)
             {
+                m_Agent.speed = movementSpeed;
+                m_Agent.isStopped = false;
+
                 // Get the tile target
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
                 path = PathFinder.FindPath(currentTile, target);
+
+
+                analised = pathFinder.GetTileListAnalised();
+                notanalised = pathFinder.GetTileListNotAnalised();
+
+                movingToEnemy = false;
+                isAttacking = false;
+
                 currentPath = path;
                 gotPath = true;
-                //SetAgentPath(path);
+                SetAgentPath(path);
             }
+            else if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.GetComponent<HexTile>().hasEnemy)
+            {
+                m_Agent.speed = movementSpeed;
+                m_Agent.isStopped = false;
+
+                // Get the tile target
+                m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
+                target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
+
+                path = PathFinder.FindPath(currentTile, target);
+                path.RemoveAt(path.Count - 1);
+
+                analised = pathFinder.GetTileListAnalised();
+                notanalised = pathFinder.GetTileListNotAnalised();
+
+                movingToEnemy = true;
+
+                currentPath = path;
+                gotPath = true;
+                SetAgentPath(path);
+            }
+            else return;
         }
     }
 
@@ -90,15 +197,18 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        if(currentPath == null || currentPath.Count <= 1)
+        if (currentPath == null || currentPath.Count <= 1)
         {
+            hasReachedDestination = true;
+            m_Agent.isStopped = true;
+            m_Agent.speed = 0;
+            
             nextTile = null;
 
-            if(currentTile != null && currentPath.Count > 0)
+            if (currentTile != null && currentPath.Count > 0)
             {
                 currentTile = currentPath[0];
                 nextTile = currentTile;
-
             }
 
             gotPath = false;
@@ -106,44 +216,92 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            hasReachedDestination = false;
+            m_Agent.speed = movementSpeed;
+
+            UpdateLineRender(currentPath);
+
+            m_Agent.isStopped = false;
+
             currentTile = currentPath[0];
 
             nextTile = currentPath[1];
 
-            if (nextTile.hasObjects)
+            //if (nextTile.hasObjects)
+            //{
+            //    currentPath.Clear();
+            //    gotPath = false;
+            //    path.Clear();
+            //    FindPathToDestination(currentTile, target);
+            //    HandleMovement();
+            //    return;
+            //}
+            //else
+            //{
+
+            //SetAgentPath(path);
+
+            if (currentTile != null && nextTile != null)
             {
-                currentPath.Clear();
-                HandleMovement();
-                return;
+                m_Agent.SetDestination(nextTile.transform.position);
             }
 
-            // Calculate the time-based interpolation factor
-            float t = Time.deltaTime * movementSpeed;
-
-            // Interpolate the player's position
-            this.transform.position = Vector3.Lerp(this.transform.position, nextTile.transform.position + new Vector3(0, 0.5f, 0), t);
-
-
-            // Get the positions of the objects
-            Vector3 positionA = transform.position;
-            Vector3 positionB = nextTile.position;
-
-            // Calculate the distance on the X and Z axes (ignoring Y-axis)
-            float distanceX = Mathf.Abs(positionA.x - positionB.x);
-            float distanceZ = Mathf.Abs(positionA.z - positionB.z);
-
-            // Calculate the total distance
-            float totalDistance = Mathf.Sqrt(distanceX * distanceX + distanceZ * distanceZ);
-
-
-            // Check if the player has reached the next tile
-            if (totalDistance < 0.01f)
+            if (m_Agent.remainingDistance < 0.1f && !m_Agent.pathPending)
             {
                 currentPath.RemoveAt(0);
-                instance.playerPos = nextTile.cubeCoordinate;
-                UpdateLineRender(currentPath);
             }
         }
+    }
+
+    void FindEnemy()
+    {
+        foreach (HexTile neiTile in currentTile.neighbours)
+        {
+            if (neiTile.GetComponent<HexTile>().hasEnemy)
+            {
+                enemy = neiTile.GetComponent<HexTile>().enemy;
+                return;
+            }
+            else {enemy = null;}
+        }
+    }
+
+    void HandleAttack()
+    {
+        RotateToEnemy();
+        isAttacking = true;
+        animator.SetBool("isAttacking", true);
+    }
+
+    void RotateToEnemy()
+    {
+        Vector3 lookPos = enemy.transform.position - transform.position;
+        lookPos.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(lookPos);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, movementSpeed);
+    }
+
+    protected void UpdateLineRender(List<HexTile> tiles)
+    {
+        if (renderer == null) { return; }
+
+        List<Vector3> positions = new List<Vector3>();
+
+        foreach (HexTile tile in tiles)
+        {
+
+            positions.Add(tile.position + new Vector3(0, (int)tile.transform.lossyScale.y / 2.5f, 0));
+        }
+
+        renderer.positionCount = positions.Count;
+        renderer.SetPositions(positions.ToArray());
+    }
+
+    void FindPathToDestination(HexTile current, HexTile destination)
+    {
+        path = PathFinder.FindPath(currentTile, destination);
+        currentPath = path;
+        gotPath = true;
     }
 
     void SetAgentPath(List<HexTile> path)
@@ -162,29 +320,57 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    protected void UpdateLineRender(List<HexTile> tiles)
+    public void ActivateSwordBehaviour()
     {
-        if (renderer == null) { return; }
-
-        List<Vector3> positions = new List<Vector3>();
-
-        foreach (HexTile tile in tiles)
-        {
-            positions.Add(tile.position + new Vector3(0, 0.5f, 0));
-        }
-
-        renderer.positionCount = positions.Count;
-        renderer.SetPositions(positions.ToArray());
+        enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
     }
 
-    public void OnDrawGizmos()
+    public void TakeDamage(int value)
     {
-        if (path != null)
+        if (currentHealth - value >= 0)
         {
+            currentHealth -= value;
+        }
+        else currentHealth = 0;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            other.gameObject.GetComponent<HexTile>().hasObjects = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            other.gameObject.GetComponent<HexTile>().hasObjects = false;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+
+        if (displayPath)
+        {
+            foreach (HexTile tile in analised)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in notanalised)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
             foreach (HexTile tile in path)
             {
-                Debug.Log("Drawing path");
-                Gizmos.DrawCube(tile.transform.position + new Vector3(0, 10f, 0), new Vector3(2, 2, 2));
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(tile.position, 1f);
             }
         }
     }

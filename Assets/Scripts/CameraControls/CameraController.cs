@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [SerializeField] private Transform cameraTransform; // May switch to Cinemachine if i have time - Switch to cinemachine and regret it...oh well its cute
-    public Transform followTarget;
+    //public Transform followTarget;
 
     [Header("Camera HandleFindPath")]
     [SerializeField] private float shiftSpeed;
@@ -67,22 +67,24 @@ public class CameraController : MonoBehaviour
     {
         // TO DO
         //Will come back eventually to fix this ... not working - Add new camera for this to work and its too much effort
-        if (followTarget != null)
-        {
-            transform.position = followTarget.position;
-        }
-        else
-        {
-            CameraControlMouse();
-            CameraControlsKeyBoard();
-        }
+        //if (followTarget != null)
+        //{
+        //    transform.position = followTarget.position;
+        //}
+        //else
+        //{
+
+        //}
+
+        CameraControlMouse();
+        CameraControlsKeyBoard();
 
         //TO DO
         //Change this to all wasd input
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            followTarget = null;
-        }
+        //if (Input.GetKeyDown(KeyCode.Escape))
+        //{
+        //    followTarget = null;
+        //}
 
         //Track Mouse
         var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -195,8 +197,6 @@ public class CameraController : MonoBehaviour
 
         if (invertedControls)
         {
-
-
             if (Input.mouseScrollDelta.y > 0)
             {
                 fieldOfView += fieldOfViewIncreaseAmount;

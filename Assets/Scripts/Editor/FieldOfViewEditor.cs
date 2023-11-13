@@ -7,22 +7,25 @@ public class FieldOfViewEditor : Editor
     void OnSceneGUI()
     {
         EnemyStateMachine fow = (EnemyStateMachine)target;
-        Handles.color = Color.white;
-        Handles.DrawWireArc(fow.transform.position, Vector3.up, Vector3.forward, 360, fow.radius);
-
-        Vector3 viewAngleA = DirectionFromAngle(fow.transform.eulerAngles.y, -fow.angle / 2);
-        Vector3 viewAngleB = DirectionFromAngle(fow.transform.eulerAngles.y, fow.angle / 2);
-
-
-        Handles.color = Color.red;
-        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleA * fow.radius);
-        Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.radius);
-
-        
-        if (fow.canSeePlayer)
+        if(fow != null)
         {
-            Handles.color = Color.green;
-            Handles.DrawLine(fow.transform.position, fow.player.transform.position);
+            Handles.color = Color.white;
+            Handles.DrawWireArc(fow.transform.position, Vector3.up, Vector3.forward, 360, fow.radiusToCheck);
+
+            Vector3 viewAngleA = DirectionFromAngle(fow.transform.eulerAngles.y, -fow.angle / 2);
+            Vector3 viewAngleB = DirectionFromAngle(fow.transform.eulerAngles.y, fow.angle / 2);
+
+
+            Handles.color = Color.red;
+            Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleA * fow.radiusToCheck);
+            Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.radiusToCheck);
+
+
+            if (fow.canSeeTarget)
+            {
+                Handles.color = Color.green;
+                Handles.DrawLine(fow.transform.position, fow.target.transform.position);
+            }
         }
     }
 

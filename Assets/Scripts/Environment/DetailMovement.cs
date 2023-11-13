@@ -15,7 +15,7 @@ public class DetailMovement : MonoBehaviour
     private void Awake()
     {
         //REMOVE THIS COMMENT LET IT BE ACTIVE JUST COMMENTED FOR TESTING AI
-        parentObject =  GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
+        parentObject = GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
     }
 
     public void Start()

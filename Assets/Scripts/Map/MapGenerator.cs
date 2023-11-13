@@ -174,8 +174,6 @@ public class MapGenerator : MonoBehaviour
                         hexagonTile.GetComponent<HexTile>().offSetCoordinate = new Vector2Int(x, y);
                         hexagonTile.GetComponent<HexTile>().cubeCoordinate = OffSetToCube(hexagonTile.GetComponent<HexTile>().offSetCoordinate);
 
-
-
                         AddTilesIntoSection(i);
 
 

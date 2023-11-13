@@ -6,6 +6,6 @@ public class FollowObject : MonoBehaviour
 {
     public void OnMouseDown()
     {
-        CameraController.instance.followTarget = transform;
+        //CameraController.instance.followTarget = transform;
     }
 }
