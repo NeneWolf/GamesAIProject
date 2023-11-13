@@ -19,7 +19,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     int currentHealth;
     [SerializeField] int maxHealth = 100;
     [SerializeField] int damage = 10;
-
+    bool isDead;
+    [SerializeField] int speed;
     [SerializeField] float attackRange = 2f;
     [SerializeField] float chaseRange = 5f;
 
@@ -52,8 +53,15 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     public EEnemyState currentStateDisplayTEST;
 
     public bool waiting = true;
-
     public bool isBeingAttacked;
+
+    [Header("Healing & Call for help")]
+    public GameObject nearestHeal;
+    public bool isThereHealing;
+
+    public GameObject[] allNearbyEnemies;
+    public bool isBeingCalledForHelp;
+
 
     // Enum of the enemy states
     public enum EEnemyState
@@ -79,6 +87,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
         // Initialize the enemy's health
         currentHealth = maxHealth;
+        navMeshAgent.speed = speed;
     }
 
     public void InitialFindAllTargetsInformation()
@@ -95,7 +104,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         // Initialize the target
         player = GameObject.FindGameObjectWithTag("Player");
     }
-
 
     public void Update()
     {
@@ -214,20 +222,90 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     public void TakeDamage(int damage)
     {
-        isBeingAttacked = true;
-        target = player;
-        currentHealth -= damage;
+        if (currentHealth - damage > 0) 
+        {
+            isBeingAttacked = true;
+            target = player;
+            currentHealth -= damage;
+        }
+        else
+        {
+            currentHealth = 0;
+            isDead = true;
+        }
     }
 
     public bool CheckNeedsHealingStates()
     {
         if(currentHealth < maxHealth / 2)
         {
+              FindTheNearestHealingTile();
+              navMeshAgent.speed /= 2;
               return true;
         }
         else
         {
+            navMeshAgent.speed = speed;
             return false;
+        }
+    }
+
+    void FindTheNearestHealingTile()
+    {
+        GameObject[] healing = GameObject.FindGameObjectsWithTag("Healing");
+
+        if (healing != null)
+        {
+            isThereHealing = true;
+            GameObject closestHeal = null;
+            closestHeal = healing[0];
+
+            foreach (GameObject h in healing)
+            {
+                float distance = Vector3.Distance(transform.position, h.transform.position);
+                float distance2 = Vector3.Distance(transform.position, closestHeal.transform.position);
+
+                if(distance < distance2)
+                {
+                    closestHeal = h;
+                }
+            }
+
+            target = closestHeal;
+        }
+        else
+        {
+            isThereHealing = false;
+        }
+
+    }
+
+
+    public void FindAllEnemiesAndCallForHelp()
+    {
+        allNearbyEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        foreach(GameObject enemy in allNearbyEnemies)
+        {
+            if (Vector3.Distance(this.transform.position,enemy.transform.position) < 15f)
+            {
+                enemy.gameObject.GetComponent<EnemyStateMachine>().isBeingCalledForHelp = true;
+                enemy.gameObject.GetComponent<EnemyStateMachine>().target = target;
+                enemy.gameObject.GetComponent<EnemyStateMachine>().currentState = states[EEnemyState.Chase];
+                enemy.gameObject.GetComponent<EnemyStateMachine>().currentState.EnterState();
+            }
+        }
+    }
+
+    public void Heal(int value)
+    {
+        if(currentHealth + value <= maxHealth)
+        {
+            currentHealth += value;
+        }
+        else if(currentHealth + value > maxHealth)
+        {
+            currentHealth = maxHealth;
         }
     }
 
@@ -276,6 +354,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     {
         Gizmos.DrawWireSphere(transform.position, 2);
         Gizmos.DrawWireSphere(transform.position, 6);
+    }
+
+    public bool reportIsDead()
+    {
+        return isDead;
     }
 }
 

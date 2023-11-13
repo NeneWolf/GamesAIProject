@@ -15,9 +15,6 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("Chase State");
-
-
         if(enemyStateMachine.target != null)
             agent.SetDestination(enemyStateMachine.target.transform.position);
         else
@@ -37,7 +34,7 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
     {
         // 0 - Melee 1 - Ranged
         var rang = Random.Range(0, 1);
-        Debug.Log("Next State " + changeTarget);
+
         if (enemyStateMachine.CheckNeedsHealingStates())
         {
             return EnemyStateMachine.EEnemyState.Heal;
@@ -62,7 +59,6 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter Chase Trigger");
         if (other.gameObject.tag == "Player")
         {
             changeTarget = true;
@@ -74,7 +70,6 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void OnTriggerExit(Collider other)
     {
-        Debug.Log("Exit Chase Trigger");
         if (other.gameObject.tag == "Player")
         {
             changeTarget = false;

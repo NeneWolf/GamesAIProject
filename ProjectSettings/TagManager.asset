@@ -9,6 +9,7 @@ TagManager:
   - Village
   - PlayerCastle
   - EnemySpawnCastle
+  - Heal
   layers:
   - Default
   - TransparentFX

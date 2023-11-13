@@ -42,7 +42,7 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Idle;
         }
-        else if (playerSpotted)
+        else if (playerSpotted || enemyStateMachine.isBeingAttacked)
         {
             return EnemyStateMachine.EEnemyState.Chase;
         }

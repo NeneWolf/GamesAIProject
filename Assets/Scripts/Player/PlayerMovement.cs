@@ -322,16 +322,43 @@ public class PlayerMovement : MonoBehaviour
 
     public void ActivateSwordBehaviour()
     {
-        enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
+        if(enemy.GetComponent<EnemyStateMachine>().reportIsDead() == false)
+        {
+            enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
+        }
     }
 
     public void TakeDamage(int value)
     {
-        if (currentHealth - value >= 0)
+        if (currentHealth - value > 0)
         {
             currentHealth -= value;
         }
-        else currentHealth = 0;
+        else
+        {
+            currentHealth = 0;
+            isDead = true;
+        }
+    }
+
+    public void Heal(int value)
+    {
+        if (currentHealth + value <= health)
+        {
+            currentHealth += value;
+        }
+        else if (currentHealth + value > health)
+        {
+            currentHealth = health;
+        }
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Heal")
+        {
+            collision.gameObject.GetComponent<DropBehaviour>().RetrieveValue();
+        }
     }
 
     private void OnTriggerEnter(Collider other)

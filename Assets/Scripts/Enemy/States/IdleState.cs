@@ -50,7 +50,7 @@ internal class IdleState : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Patrol;
         }
-        else if (targetSpotted)
+        else if (targetSpotted || enemyStateMachine.isBeingAttacked)
         {
             return EnemyStateMachine.EEnemyState.Chase;
         }
