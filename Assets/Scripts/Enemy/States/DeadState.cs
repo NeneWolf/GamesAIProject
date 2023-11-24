@@ -22,6 +22,8 @@ internal class DeadState : BaseState<EnemyStateMachine.EEnemyState>
         throw new System.NotImplementedException();
     }
 
+
+
     public override void OnTriggerEnter(Collider other)
     {
         throw new System.NotImplementedException();

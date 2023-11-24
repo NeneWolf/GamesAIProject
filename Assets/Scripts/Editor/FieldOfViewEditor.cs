@@ -24,7 +24,9 @@ public class FieldOfViewEditor : Editor
             if (fow.canSeeTarget)
             {
                 Handles.color = Color.green;
-                Handles.DrawLine(fow.transform.position, fow.target.transform.position);
+
+                if(fow.target != null)
+                    Handles.DrawLine(fow.transform.position, fow.target.transform.position);
             }
         }
     }

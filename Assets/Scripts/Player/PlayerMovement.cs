@@ -49,6 +49,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool isAttacking;
 
+    [SerializeField] LayerMask hexTileLayer;
+
     private void Awake()
     {
         m_Agent = GetComponent<NavMeshAgent>();
@@ -134,10 +136,14 @@ public class PlayerMovement : MonoBehaviour
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && !m_HitInfo.collider.GetComponent<HexTile>().hasObjects)
+            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && !m_HitInfo.collider.GetComponent<HexTile>().hasObjects)
             {
                 m_Agent.speed = movementSpeed;
-                m_Agent.isStopped = false;
+                
+                if(m_Agent.isStopped)
+                {
+                    m_Agent.isStopped = false;
+                }
 
                 // Get the tile target
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
@@ -156,10 +162,14 @@ public class PlayerMovement : MonoBehaviour
                 gotPath = true;
                 SetAgentPath(path);
             }
-            else if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.GetComponent<HexTile>().hasEnemy)
+            else if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && m_HitInfo.collider.GetComponent<HexTile>().hasEnemy)
             {
                 m_Agent.speed = movementSpeed;
-                m_Agent.isStopped = false;
+
+                if (m_Agent.isStopped)
+                {
+                    m_Agent.isStopped = false;
+                }
 
                 // Get the tile target
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
@@ -322,9 +332,13 @@ public class PlayerMovement : MonoBehaviour
 
     public void ActivateSwordBehaviour()
     {
-        if(enemy.GetComponent<EnemyStateMachine>().reportIsDead() == false)
+        if(!enemy.GetComponent<EnemyStateMachine>().reportIsDead())
         {
             enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
+        }
+        else if(enemy.GetComponent<EnemyStateMachine>().reportIsDead())
+        {
+            enemy = null;
         }
     }
 
@@ -355,7 +369,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "Heal")
+        if (collision.gameObject.tag == "Heal")
         {
             collision.gameObject.GetComponent<DropBehaviour>().RetrieveValue();
         }
@@ -366,6 +380,7 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.layer == 6)
         {
             other.gameObject.GetComponent<HexTile>().hasObjects = true;
+            other.gameObject.GetComponent<HexTile>().hasPlayer = true;
         }
     }
 
@@ -374,13 +389,14 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.layer == 6)
         {
             other.gameObject.GetComponent<HexTile>().hasObjects = false;
+            other.gameObject.GetComponent<HexTile>().hasPlayer = false;
         }
     }
 
     private void OnDrawGizmos()
     {
 
-        if (displayPath)
+        if (displayPath && gotPath)
         {
             foreach (HexTile tile in analised)
             {
@@ -400,5 +416,10 @@ public class PlayerMovement : MonoBehaviour
                 Gizmos.DrawSphere(tile.position, 1f);
             }
         }
+    }
+
+    public bool ReportIsDead()
+    {
+        return isDead;
     }
 }

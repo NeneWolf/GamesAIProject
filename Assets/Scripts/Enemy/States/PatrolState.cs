@@ -11,14 +11,11 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
     {
         this.enemyStateMachine = enemyStateMachine;
         this.agent = agent;
-        // Constructor
     }
 
     public override void EnterState()
     {
-
-        //TO BE CHANGED
-        agent.SetDestination(RandomNavmeshLocation(enemyStateMachine.patrolRadius));
+        enemyStateMachine.FindPathToRandomPoint();
 
         enemyStateMachine.UpdateAnimator("isPatrolling",true);
 
@@ -38,7 +35,11 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override EnemyStateMachine.EEnemyState GetNextState()
     {
-        if (agent.remainingDistance < 0.02f && !playerSpotted)
+        if (enemyStateMachine.CheckNeedsHealingStates() && enemyStateMachine.isThereHealing)
+        {
+            return EnemyStateMachine.EEnemyState.Heal;
+        }
+        else if (enemyStateMachine.hasReachedDestination && !playerSpotted)
         {
             return EnemyStateMachine.EEnemyState.Idle;
         }
@@ -78,19 +79,5 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
         }
         else { playerSpotted = false;}
 
-    }
-
-    public Vector3 RandomNavmeshLocation(float radius)
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * radius;
-        randomDirection += enemyStateMachine.enemy.transform.position;
-
-        NavMeshHit hit;
-        Vector3 finalPosition = Vector3.zero;
-        if (NavMesh.SamplePosition(randomDirection, out hit, radius, 1))
-        {
-            finalPosition = hit.position;
-        }
-        return finalPosition;
     }
 }

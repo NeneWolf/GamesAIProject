@@ -198,9 +198,10 @@ public class MapGenerator : MonoBehaviour
                 for (int z = 0; z < numberOfVillages; z++)
                 {
                     int randomTile = Random.Range(0, playerArea.Count);
-                    hexagonTile = playerArea[randomTile];
-                    detail = Instantiate(KeyBuildings[0], playerArea[randomTile].gameObject.transform.position, playerArea[randomTile].transform.transform.rotation, playerArea[randomTile].gameObject.transform.parent);
 
+                    hexagonTile = playerArea[randomTile];
+
+                    detail = Instantiate(KeyBuildings[0], playerArea[randomTile].gameObject.transform.position, playerArea[randomTile].transform.transform.rotation, playerArea[randomTile].gameObject.transform.parent);
                     detail.GetComponent<DetailMovement>().UpdatePosition();
                     playerArea.RemoveAt(randomTile);
                 }

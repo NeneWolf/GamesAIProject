@@ -64,6 +64,73 @@ Transform:
   - {fileID: 739523366370299230}
   m_Father: {fileID: 4933246054218745519}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &683607587818178141
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2200202549158626455}
+  - component: {fileID: 6690410075262841260}
+  - component: {fileID: 8821339855069902074}
+  m_Layer: 0
+  m_Name: ChangeTileHasObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2200202549158626455
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683607587818178141}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.167, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5140033633163262942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6690410075262841260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683607587818178141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1e8f904367271445977cfe7a520486a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemy: {fileID: 4038078222228396643}
+--- !u!65 &8821339855069902074
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683607587818178141}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 1
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.27153215, y: 0.2742161, z: 1}
+  m_Center: {x: -0.1732431, y: 0, z: 0}
 --- !u!1 &761498165393276405
 GameObject:
   m_ObjectHideFlags: 0
@@ -590,7 +657,7 @@ GameObject:
   - component: {fileID: 6956826971134225380}
   m_Layer: 0
   m_Name: HellHound
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -773,6 +840,8 @@ GameObject:
   - component: {fileID: 8914185960142489349}
   - component: {fileID: 2594437962003064264}
   - component: {fileID: 5439882214934120200}
+  - component: {fileID: 3178358666579002052}
+  - component: {fileID: 5352488393559108120}
   m_Layer: 0
   m_Name: Hellhound_Red
   m_TagString: Enemy
@@ -796,6 +865,7 @@ Transform:
   - {fileID: 6015005313516040022}
   - {fileID: 5518536469783778579}
   - {fileID: 3227703328211747359}
+  - {fileID: 2200202549158626455}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &6861084995122202868
@@ -855,22 +925,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemy: {fileID: 0}
-  maxHealth: 100
+  currentHealth: 0
   damage: 10
+  speed: 5
   attackRange: 2
   chaseRange: 5
   currentNumberOfVillages: 0
+  villages: []
+  closesVillage: {fileID: 0}
   isPlayerCastleAlive: 1
   isPlayerAlive: 1
-  player: {fileID: 0}
+  target: {fileID: 0}
   patrolRadius: 10
-  canSeePlayer: 0
-  whatIsPlayerMask:
+  canSeeTarget: 0
+  whatIsTargetMask:
     serializedVersion: 2
     m_Bits: 128
-  radius: 7
+  radiusToCheck: 7
+  radiusToRunAway: 20
   angle: 150
+  currentStateDisplayTEST: 0
   waiting: 1
+  isBeingAttacked: 0
+  nearestHeal: {fileID: 0}
+  isThereHealing: 0
+  allNearbyEnemies: []
+  isBeingCalledForHelp: 0
+  targetTile: {fileID: 0}
+  currentTile: {fileID: 0}
+  nextTile: {fileID: 0}
+  hasReachedDestination: 0
+  gotPath: 0
+  displayPath: 1
+  movingToAttack: 0
 --- !u!136 &5439882214934120200
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -894,6 +981,54 @@ CapsuleCollider:
   m_Height: 3.5
   m_Direction: 2
   m_Center: {x: 0, y: 1.73, z: 0.63}
+--- !u!135 &3178358666579002052
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4038078222228396643}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 260
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 15
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &5352488393559108120
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4038078222228396643}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
 --- !u!1 &4299577668067661294
 GameObject:
   m_ObjectHideFlags: 0
@@ -1475,7 +1610,7 @@ GameObject:
   - component: {fileID: 5518536469783778579}
   m_Layer: 0
   m_Name: Root
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -23,7 +23,7 @@ public class DropBehaviour : MonoBehaviour
         tag = gameObject.tag;
         halfHeight = this.transform.lossyScale.y * 0.5f;
         sphereCollider = GetComponent<SphereCollider>();
-        sphereCollider.enabled = false; 
+        sphereCollider.enabled = false;
     }
 
     private void Update()
@@ -69,6 +69,17 @@ public class DropBehaviour : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Destroy(this.gameObject);
+        if (other.gameObject.CompareTag("Player"))
+        {
+            other.gameObject.GetComponent<PlayerMovement>().Heal(healAmount);
+            Destroy(this.gameObject);
+        }
+        else if (other.gameObject.CompareTag("Enemy"))
+        {
+            other.gameObject.GetComponent<EnemyStateMachine>().Heal(healAmount);
+            Destroy(this.gameObject);
+        }
+
+        
     }
 }

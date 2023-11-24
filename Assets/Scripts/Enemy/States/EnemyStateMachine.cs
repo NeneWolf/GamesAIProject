@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using Unity.VisualScripting;
 using UnityEditor.Build;
@@ -9,6 +10,8 @@ using UnityEngine.AI;
 public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 {
     NavMeshAgent navMeshAgent;
+    NavMeshPath navMeshPath;
+    PathFinder pathFinder;
     Animator animator;
     SphereCollider sphereCollider;
 
@@ -16,8 +19,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     // States of the enemy
     [Header("EnemyStats")]
-    int currentHealth;
-    [SerializeField] int maxHealth = 100;
+    int maxHealth = 100;
+    [SerializeField] int currentHealth;
     [SerializeField] int damage = 10;
     bool isDead;
     [SerializeField] int speed;
@@ -62,6 +65,25 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     public GameObject[] allNearbyEnemies;
     public bool isBeingCalledForHelp;
 
+    //Pathfinding
+    [Header("Pathfinding")]
+    RaycastHit m_hitInfo = new RaycastHit();
+    public HexTile targetTile;
+    public HexTile currentTile;
+    public HexTile nextTile;
+    public bool hasReachedDestination;
+    public bool gotPath = false;
+    public bool displayPath = false;
+
+    List<HexTile> path;
+    List<HexTile> currentPath;
+
+    //View Gizmos Pathfinding
+    List<HexTile> analised = new List<HexTile>();
+    List<HexTile> notanalised = new List<HexTile>();
+
+
+    public bool movingToAttack;
 
     // Enum of the enemy states
     public enum EEnemyState
@@ -78,6 +100,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshPath = GetComponent<NavMeshAgent>().path;
+        pathFinder = GameObject.FindAnyObjectByType<PathFinder>();
+
         animator = GetComponent<Animator>();
         sphereCollider = GetComponent<SphereCollider>();
         sphereCollider.radius = radiusToRunAway;
@@ -88,6 +113,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         // Initialize the enemy's health
         currentHealth = maxHealth;
         navMeshAgent.speed = speed;
+
+        // Temporary
     }
 
     public void InitialFindAllTargetsInformation()
@@ -125,6 +152,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
 
         FieldOfViewCheckForTargets();
+
+
+        if (gotPath)
+        {
+            HandleEnemyMovement();
+        }
     }
 
     void AddStates()
@@ -132,9 +165,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         // Initialize your enemy states and add them to the 'states' dictionary
         states.Add(EEnemyState.Idle, new IdleState(this,waiting));
         states.Add(EEnemyState.Patrol, new PatrolState(this, navMeshAgent));
-        states.Add(EEnemyState.Heal, new HealState());
+        states.Add(EEnemyState.Heal, new HealState(this, navMeshAgent));
         states.Add(EEnemyState.Chase, new ChaseState(this,navMeshAgent));
-        states.Add(EEnemyState.AttackMelee, new AttackState());
+        states.Add(EEnemyState.AttackMelee, new AttackMelee(this, navMeshAgent));
         states.Add(EEnemyState.AttackRanged, new AttackRanged(this));
         states.Add(EEnemyState.Dead, new DeadState());
 
@@ -142,36 +175,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         currentState = states[EEnemyState.Idle];
         currentState.EnterState();
     }
-
-    //public GameObject FindClosestTarget()
-    //{
-    //    // Find the closest village
-    //    float closestDistance = Mathf.Infinity;
-
-    //    if (currentNumberOfVillages > 0)
-    //    {
-    //        foreach (GameObject village in villages)
-    //        {
-    //            float distance = Vector3.Distance(transform.position, village.transform.position);
-
-    //            if (distance < closestDistance)
-    //            {
-    //                closestDistance = distance;
-    //                closesVillage = village;
-    //            }
-    //        }
-
-    //        return closesVillage;
-    //    }
-    //    else if(currentNumberOfVillages == 0)
-    //    {
-    //        return playerCastle;
-    //    }
-    //    else
-    //    {
-    //        return target;
-    //    }
-    //}
 
     public void FieldOfViewCheckForTargets()
     {
@@ -220,27 +223,28 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
+
+
     public void TakeDamage(int damage)
     {
-        if (currentHealth - damage > 0) 
-        {
-            isBeingAttacked = true;
-            target = player;
-            currentHealth -= damage;
-        }
-        else
+        currentHealth -= damage;
+       // isBeingAttacked = true;
+
+        if(currentHealth <= 0)
         {
             currentHealth = 0;
             isDead = true;
         }
     }
 
+
+
     public bool CheckNeedsHealingStates()
     {
         if(currentHealth < maxHealth / 2)
         {
               FindTheNearestHealingTile();
-              navMeshAgent.speed /= 2;
+              if (navMeshAgent.speed == speed) { navMeshAgent.speed /= 2; }
               return true;
         }
         else
@@ -250,11 +254,13 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
-    void FindTheNearestHealingTile()
-    {
-        GameObject[] healing = GameObject.FindGameObjectsWithTag("Healing");
 
-        if (healing != null)
+
+    public void FindTheNearestHealingTile()
+    {
+        GameObject[] healing = GameObject.FindGameObjectsWithTag("Heal");
+
+        if (healing.Length > 0)
         {
             isThereHealing = true;
             GameObject closestHeal = null;
@@ -275,11 +281,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
         else
         {
+            target = null;
             isThereHealing = false;
         }
 
     }
-
 
     public void FindAllEnemiesAndCallForHelp()
     {
@@ -297,28 +303,33 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
+
+
     public void Heal(int value)
     {
-        if(currentHealth + value <= maxHealth)
-        {
-            currentHealth += value;
-        }
-        else if(currentHealth + value > maxHealth)
+        currentHealth += value;
+
+        if(currentHealth > maxHealth)
         {
             currentHealth = maxHealth;
-        }
+        }   
     }
+
+
+
 
     public void UpdateAnimator(string animation, bool status)
     {
         animator.SetBool(animation, status);
     }
 
+
+
+    //Mainly For Idle State
     public void WaitForTime(int time)
     {
         StartCoroutine(Wait(time));
     }
-
     IEnumerator Wait(int amount)
     {
         waiting = true;
@@ -326,9 +337,15 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         waiting = false;
     }
 
+
+
+
+
+
+
     private void OnTriggerEnter(Collider other)
     {
-        if(currentState.stateKey == EEnemyState.Chase)
+        if(currentState.stateKey == EEnemyState.Chase || currentState.stateKey == EEnemyState.Heal)
         {
             currentState.OnTriggerEnter(other);
         }
@@ -354,11 +371,198 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     {
         Gizmos.DrawWireSphere(transform.position, 2);
         Gizmos.DrawWireSphere(transform.position, 6);
+
+
+        if (displayPath && gotPath)
+        {
+            foreach (HexTile tile in analised)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in notanalised)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in path)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+        }
     }
 
     public bool reportIsDead()
     {
         return isDead;
     }
+
+
+    void HandleEnemyMovement()
+    {
+        if (currentPath == null || currentPath.Count <= 1)
+        {
+            hasReachedDestination = true;
+            navMeshAgent.isStopped = true;
+            navMeshAgent.speed = 0;
+
+            nextTile = null;
+
+            if (currentTile != null && currentPath.Count > 0)
+            {
+                currentTile = currentPath[0];
+                nextTile = currentTile;
+            }
+
+            gotPath = false;
+        }
+        else
+        {
+            hasReachedDestination = false;
+            navMeshAgent.speed = speed;
+
+            navMeshAgent.isStopped = false;
+
+            currentTile = currentPath[0];
+
+            nextTile = currentPath[1];
+
+            if (currentTile != null && nextTile != null)
+            {
+                navMeshAgent.SetDestination(nextTile.transform.position);
+            }
+
+            if (navMeshAgent.remainingDistance < 0.1f && !navMeshAgent.pathPending)
+            {
+                currentPath.RemoveAt(0);
+            }
+        }
+    }
+
+    public void FindPathToRandomPoint()
+    {
+        targetTile = RandomNavmeshLocation();
+        path = PathFinder.FindPath(currentTile, targetTile);
+
+        movingToAttack = false;
+
+        analised = pathFinder.GetTileListAnalised();
+        notanalised = pathFinder.GetTileListNotAnalised();
+
+        currentPath = path;
+        gotPath = true;
+        SetAgentPath(path);
+    }
+
+    public void FindPathToTarget()
+    {
+        if(target != null)
+        {
+            if(target.CompareTag("Player"))
+            {
+                targetTile = target.GetComponent<PlayerMovement>().currentTile;
+            }
+            else if(target.CompareTag("Village") || target.CompareTag("PlayerCastle"))
+            {
+                targetTile = target.GetComponent<DetailMovement>().currentTile;
+            }
+
+            path = PathFinder.FindPath(currentTile, targetTile);
+            path.RemoveAt(path.Count - 1);
+
+            movingToAttack = true;
+
+            analised = pathFinder.GetTileListAnalised();
+            notanalised = pathFinder.GetTileListNotAnalised();
+
+            currentPath = path;
+            gotPath = true;
+            SetAgentPath(path);
+
+        }
+    }
+
+    public HexTile RandomNavmeshLocation()
+    {
+        List<HexTile> hexTiles = HexTilesWithinRadius(currentTile, patrolRadius);
+
+        if (hexTiles.Count > 0)
+        {
+            // Pick a random index
+            int randomIndex = Random.Range(0, hexTiles.Count);
+
+            // Return the randomly selected HexTile
+            return hexTiles[randomIndex];
+        }
+
+        return null;
+    }
+
+    public List<HexTile> HexTilesWithinRadius(HexTile currentTile, float radius)
+    {
+        List<HexTile> hexTiles = new List<HexTile>();
+
+        Collider[] colliders = Physics.OverlapSphere(currentTile.transform.position, radius);
+
+        foreach (var collider in colliders)
+        {
+            if(collider.gameObject.layer == 6)
+            {
+                HexTile hexTile = collider.GetComponent<HexTile>();
+
+                if (hexTile != null &&
+                    !hexTile.GetComponent<HexTile>().hasObjects ||
+                    !hexTile.GetComponent<HexTile>().hasEnemy ||
+                    !hexTile.GetComponent<HexTile>().hasEnemy)
+                {
+                    hexTiles.Add(hexTile);
+                }
+            }
+        }
+
+        return hexTiles;
+    }
+
+    void SetAgentPath(List<HexTile> path)
+    {
+        if (path == null || path.Count == 0)
+        {
+            Debug.Log("Path is null or empty");
+            return;
+        }
+
+        navMeshAgent.CalculatePath(path[path.Count - 1].position, navMeshPath);
+
+        if (navMeshPath.status == NavMeshPathStatus.PathComplete)
+        {
+            navMeshAgent.SetPath(navMeshPath);
+        }
+    }
+
+    public bool FindPlayer()
+    {
+        foreach (HexTile neiTile in currentTile.neighbours)
+        {
+            if (neiTile.GetComponent<HexTile>().hasPlayer)
+            {
+                return true;
+            }
+            else { return false; }
+        }
+
+        return false;
+    }
+
+    public void RotateToTarget()
+    {
+        Vector3 lookPos = target.transform.position - transform.position;
+        lookPos.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(lookPos);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
+    }
+
 }
 

@@ -16,11 +16,9 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
     public override void EnterState()
     {
         if(enemyStateMachine.target != null)
-            agent.SetDestination(enemyStateMachine.target.transform.position);
+            enemyStateMachine.FindPathToTarget();
         else
-        {
             enemyStateMachine.FieldOfViewCheckForTargets();
-        }
 
         enemyStateMachine.UpdateAnimator("isChasing", true);
     }
@@ -32,20 +30,13 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override EnemyStateMachine.EEnemyState GetNextState()
     {
-        // 0 - Melee 1 - Ranged
-        var rang = Random.Range(0, 1);
-
-        if (enemyStateMachine.CheckNeedsHealingStates())
+        if (enemyStateMachine.CheckNeedsHealingStates() && enemyStateMachine.isThereHealing)
         {
             return EnemyStateMachine.EEnemyState.Heal;
-        }// TO CHANGE !
-        else if (rang == 0 && agent.remainingDistance < 2.5f)
+        }
+        else if (enemyStateMachine.hasReachedDestination && enemyStateMachine.movingToAttack && enemyStateMachine.target != null)
         {
             return EnemyStateMachine.EEnemyState.AttackMelee;
-        }
-        else if (rang == 1 && agent.remainingDistance < 6f)
-        {
-            return EnemyStateMachine.EEnemyState.AttackRanged;
         }
         else if(changeTarget == false)
         {
@@ -76,7 +67,7 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
             enemyStateMachine.target = null;
             enemyStateMachine.canSeeTarget = false;
             agent.destination = enemyStateMachine.transform.position;
-            Debug.Log(enemyStateMachine.target);
+            enemyStateMachine.isBeingAttacked = false;
         }
         else return;
     }
@@ -93,10 +84,9 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void UpdateState()
     {
-        if(enemyStateMachine.target != null)
+        if (enemyStateMachine.target == null)
         {
-            agent.SetDestination(enemyStateMachine.target.transform.position);
+            enemyStateMachine.FieldOfViewCheckForTargets();
         }
-        else return;
     }
 }

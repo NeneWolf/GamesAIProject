@@ -15,6 +15,7 @@ public class HexTile : MonoBehaviour
     public List<HexTile> neighbours;
     public bool hasObjects = false;
     public bool hasEnemy = false;
+    public bool hasPlayer = false;
 
     public GameObject enemy;
 

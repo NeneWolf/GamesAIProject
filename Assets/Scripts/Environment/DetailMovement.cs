@@ -5,27 +5,30 @@ using UnityEngine.AI;
 
 public class DetailMovement : MonoBehaviour
 {
-    [SerializeField] int health = 100;
+    int maxhealth = 100;
+    [SerializeField] int currentHealth;
 
     [SerializeField]
     public GameObject parentObject;
+    public HexTile currentTile;
 
+    public bool isDestroyed;
     bool hasUpdated = false;
 
     private void Awake()
     {
-        //REMOVE THIS COMMENT LET IT BE ACTIVE JUST COMMENTED FOR TESTING AI
         parentObject = GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
+        currentHealth = maxhealth;
+        currentTile = parentObject.GetComponent<HexTile>();
     }
 
     public void Start()
     {
-        UpdatePosition();            
+        UpdatePosition();
     }
 
     public void UpdatePosition()
     {
-        //REMOVE THIS COMMENT LET IT BE ACTIVE JUST COMMENTED FOR TESTING AI
         parentObject.GetComponent<HexTile>().hasObjects = true;
 
         this.transform.localScale = new Vector3(5, 5, 5);
@@ -40,9 +43,11 @@ public class DetailMovement : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        health -= damage;
-        if (health <= 0)
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
         {
+            isDestroyed = true;
             DestroyObject();
         }
     }
@@ -51,8 +56,26 @@ public class DetailMovement : MonoBehaviour
     {
         parentObject.GetComponent<HexTile>().hasObjects = false;
         this.GetComponent<BoxCollider>().enabled = false;
+
         Destroy(this.GetComponent<NavMeshObstacle>());
         GameObject.FindAnyObjectByType<MapGenerator>().GenerateMap();
         Destroy(this.gameObject);
     }
+
+    public bool ReportStatus()
+    {
+        return isDestroyed;
+    }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+
+    }
+
 }
