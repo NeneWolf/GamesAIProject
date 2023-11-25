@@ -5,7 +5,7 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 {
     EnemyStateMachine enemyStateMachine;
     NavMeshAgent agent;
-    bool changeTarget;
+    bool targetLeftAreaOfChase;
 
     public ChaseState(EnemyStateMachine enemyStateMachine, NavMeshAgent agent) : base(EnemyStateMachine.EEnemyState.Chase)
     {
@@ -15,9 +15,13 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void EnterState()
     {
-        if(enemyStateMachine.target != null)
-            enemyStateMachine.FindPathToTarget();
-        else
+        targetLeftAreaOfChase = false;
+
+        enemyStateMachine.FindPlayer();
+
+        if (enemyStateMachine.target != null && !enemyStateMachine.isPlayerInReachToAttack)
+            enemyStateMachine.FindPathToTarget(true);
+        else if(!enemyStateMachine.isBeingCalledForHelp)
             enemyStateMachine.FieldOfViewCheckForTargets();
 
         enemyStateMachine.UpdateAnimator("isChasing", true);
@@ -34,13 +38,17 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Heal;
         }
-        else if (enemyStateMachine.hasReachedDestination && enemyStateMachine.movingToAttack && enemyStateMachine.target != null)
+        else if (enemyStateMachine.isPlayerInReachToAttack)
         {
             return EnemyStateMachine.EEnemyState.AttackMelee;
         }
-        else if(changeTarget == false)
+        else if (targetLeftAreaOfChase)
         {
             return EnemyStateMachine.EEnemyState.Idle;
+        }
+        else if (enemyStateMachine.reportIsDead())
+        {
+            return EnemyStateMachine.EEnemyState.Dead;
         }
         else
         {
@@ -50,43 +58,49 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player")
-        {
-            changeTarget = true;
-            enemyStateMachine.target = other.gameObject;
-            enemyStateMachine.canSeeTarget = true;
-        }
-        else return;
+        //if (other.gameObject.CompareTag("Player"))
+        //{
+        //    targetLeftAreaOfChase = true;
+        //    enemyStateMachine.target = other.gameObject;
+        //    enemyStateMachine.canSeeTarget = true;
+        //}
+        //else return;
     }
 
     public override void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.CompareTag("Player"))
         {
-            changeTarget = false;
+            targetLeftAreaOfChase = true;
             enemyStateMachine.target = null;
             enemyStateMachine.canSeeTarget = false;
-            agent.destination = enemyStateMachine.transform.position;
-            enemyStateMachine.isBeingAttacked = false;
         }
         else return;
     }
 
     public override void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Player")
-        {
-            changeTarget = true;
-            enemyStateMachine.target = other.gameObject;
-        }
-        else return;
+        //if (other.gameObject.CompareTag("Player"))
+        //{
+        //    targetLeftAreaOfChase = true;
+        //    enemyStateMachine.target = other.gameObject;
+        //}
+        //else return;
     }
 
     public override void UpdateState()
     {
-        if (enemyStateMachine.target == null)
+        if(enemyStateMachine.target != null)
         {
-            enemyStateMachine.FieldOfViewCheckForTargets();
+           if(!enemyStateMachine.isBeingCalledForHelp)
+                enemyStateMachine.FieldOfViewCheckForTargets();
+
+            enemyStateMachine.FindPlayer();
+
+            if (!enemyStateMachine.gotPath)
+            {
+                enemyStateMachine.FindPathToTarget(true);
+            }
         }
     }
 }

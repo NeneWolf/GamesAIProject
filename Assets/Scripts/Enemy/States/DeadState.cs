@@ -2,27 +2,37 @@
 
 internal class DeadState : BaseState<EnemyStateMachine.EEnemyState>
 {
-    public DeadState() : base(EnemyStateMachine.EEnemyState.Idle)
+    EnemyStateMachine enemyStateMachine;
+    bool waiting;
+
+    public DeadState(EnemyStateMachine enemy, bool waiting) : base(EnemyStateMachine.EEnemyState.Dead)
     {
-        // Constructor
+        enemyStateMachine = enemy;
+        this.waiting = waiting;
     }
 
     public override void EnterState()
     {
-        throw new System.NotImplementedException();
+        enemyStateMachine.UpdateAnimator("isDead", true);
+
+        waiting = true; 
+
+        if(!waiting)
+        {
+            enemyStateMachine.WaitForTime(10);
+        }
+        
     }
 
     public override void ExitState()
     {
-        throw new System.NotImplementedException();
+        //throw new System.NotImplementedException();
     }
 
     public override EnemyStateMachine.EEnemyState GetNextState()
     {
-        throw new System.NotImplementedException();
+        return stateKey;
     }
-
-
 
     public override void OnTriggerEnter(Collider other)
     {
@@ -41,6 +51,9 @@ internal class DeadState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void UpdateState()
     {
-        throw new System.NotImplementedException();
+        if (!enemyStateMachine.waiting)
+        {
+            enemyStateMachine.KillEnemy();
+        }
     }
 }

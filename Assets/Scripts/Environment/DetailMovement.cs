@@ -67,15 +67,4 @@ public class DetailMovement : MonoBehaviour
         return isDestroyed;
     }
 
-
-    private void OnCollisionEnter(Collision collision)
-    {
-
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-
-    }
-
 }

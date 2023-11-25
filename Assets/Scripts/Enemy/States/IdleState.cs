@@ -54,6 +54,10 @@ internal class IdleState : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Chase;
         }
+        else if (enemyStateMachine.reportIsDead())
+        {
+            return EnemyStateMachine.EEnemyState.Dead;
+        }
         else
         {
             return stateKey; 

@@ -25,7 +25,7 @@ internal class HealState : BaseState<EnemyStateMachine.EEnemyState>
 
         if (enemyStateMachine.isThereHealing)
         {
-            enemyStateMachine.FindPathToTarget();
+            enemyStateMachine.FindPathToTarget(false);
             enemyStateMachine.UpdateAnimator("isPatrolling", true);
         }
     }
@@ -41,6 +41,10 @@ internal class HealState : BaseState<EnemyStateMachine.EEnemyState>
         {
             enemyStateMachine.target = null;
             return EnemyStateMachine.EEnemyState.Patrol;
+        }
+        else if (enemyStateMachine.reportIsDead())
+        {
+            return EnemyStateMachine.EEnemyState.Dead;
         }
         else
             return stateKey;
@@ -72,18 +76,14 @@ internal class HealState : BaseState<EnemyStateMachine.EEnemyState>
             enemyStateMachine.FindTheNearestHealingTile();
         }
 
-        if (enemyStateMachine.target != null)
-        {
-            agent.SetDestination(enemyStateMachine.target.transform.position);
-        }
-        else if(enemyStateMachine.target == null)
+        if(enemyStateMachine.target == null)
         {
             Debug.Log("Find the nearest healing tile");
             enemyStateMachine.FindTheNearestHealingTile();
 
             if (enemyStateMachine.isThereHealing)
             {
-                enemyStateMachine.FindPathToTarget();
+                enemyStateMachine.FindPathToTarget(false);
             }
             else return;
         }

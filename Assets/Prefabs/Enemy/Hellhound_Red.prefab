@@ -123,14 +123,14 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 439
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.27153215, y: 0.2742161, z: 1}
-  m_Center: {x: -0.1732431, y: 0, z: 0}
+  m_Size: {x: 0.27153215, y: 1.177686, z: 1}
+  m_Center: {x: 0, y: -0.1501773, z: 0}
 --- !u!1 &761498165393276405
 GameObject:
   m_ObjectHideFlags: 0
@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 4159526063381215691}
   - component: {fileID: 2616422648332508452}
   - component: {fileID: 4449257367288568029}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -941,8 +941,8 @@ MonoBehaviour:
   whatIsTargetMask:
     serializedVersion: 2
     m_Bits: 128
-  radiusToCheck: 7
-  radiusToRunAway: 20
+  radiusToCheck: 10
+  radiusToRunAway: 25
   angle: 150
   currentStateDisplayTEST: 0
   waiting: 1
@@ -957,7 +957,10 @@ MonoBehaviour:
   hasReachedDestination: 0
   gotPath: 0
   displayPath: 1
+  isPlayerInReachToAttack: 0
   movingToAttack: 0
+  currentStateDisplay: {fileID: 4449257367288568029}
+  health: {fileID: 9033934426312463712}
 --- !u!136 &5439882214934120200
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -971,7 +974,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -1000,7 +1003,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 15
+  m_Radius: 25
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5352488393559108120
 Rigidbody:
@@ -1175,7 +1178,7 @@ GameObject:
   - component: {fileID: 7852146856956104708}
   - component: {fileID: 1267504784553192216}
   - component: {fileID: 9033934426312463712}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1533,7 +1536,7 @@ GameObject:
   - component: {fileID: 3684851904275072701}
   - component: {fileID: 2403600126809812841}
   - component: {fileID: 3951535708604042627}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1706,7 +1709,7 @@ GameObject:
   - component: {fileID: 785213552121364197}
   - component: {fileID: 4811423881442118363}
   - component: {fileID: 1328164751829852528}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}

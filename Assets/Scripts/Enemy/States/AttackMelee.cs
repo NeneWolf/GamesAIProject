@@ -14,6 +14,8 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void EnterState()
     {
+        enemyStateMachine.FindPlayer();
+
         enemyStateMachine.RotateToTarget();
 
         enemyStateMachine.UpdateAnimator("isAttacking", true);
@@ -30,15 +32,19 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Heal;
         }
-        else if(enemyStateMachine.target.CompareTag("Player") &&
-            enemyStateMachine.target.GetComponent<PlayerMovement>().ReportIsDead() ||
-            enemyStateMachine.target.CompareTag("Village") && enemyStateMachine.target.GetComponent<DetailMovement>().ReportStatus())
-        {
-            return EnemyStateMachine.EEnemyState.Idle;
-        } 
-        else if (!enemyStateMachine.FindPlayer())
+        //else if (enemyStateMachine.target.CompareTag("Player") &&
+        //    enemyStateMachine.target.GetComponent<PlayerMovement>().ReportIsDead() ||
+        //    (enemyStateMachine.target.CompareTag("Village") || enemyStateMachine.target.CompareTag("PlayerCastle")) && enemyStateMachine.target.GetComponent<DetailMovement>().ReportStatus())
+        //{
+        //    return EnemyStateMachine.EEnemyState.Idle;
+        //}
+        else if (!enemyStateMachine.isPlayerInReachToAttack)
         {
             return EnemyStateMachine.EEnemyState.Chase;
+        }
+        else if (enemyStateMachine.reportIsDead())
+        {
+            return EnemyStateMachine.EEnemyState.Dead;
         }
         return stateKey;
     }
@@ -60,6 +66,6 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void UpdateState()
     {
-        
+        enemyStateMachine.FindPlayer();
     }
 }

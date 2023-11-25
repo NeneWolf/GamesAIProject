@@ -332,14 +332,11 @@ public class PlayerMovement : MonoBehaviour
 
     public void ActivateSwordBehaviour()
     {
-        if(!enemy.GetComponent<EnemyStateMachine>().reportIsDead())
+        if (enemy != null && !enemy.GetComponent<EnemyStateMachine>().reportIsDead())
         {
             enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
         }
-        else if(enemy.GetComponent<EnemyStateMachine>().reportIsDead())
-        {
-            enemy = null;
-        }
+        else return;
     }
 
     public void TakeDamage(int value)
@@ -390,6 +387,15 @@ public class PlayerMovement : MonoBehaviour
         {
             other.gameObject.GetComponent<HexTile>().hasObjects = false;
             other.gameObject.GetComponent<HexTile>().hasPlayer = false;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            other.gameObject.GetComponent<HexTile>().hasObjects = true;
+            other.gameObject.GetComponent<HexTile>().hasPlayer = true;
         }
     }
 

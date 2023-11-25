@@ -5,7 +5,6 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
 {
     EnemyStateMachine enemyStateMachine;
     NavMeshAgent agent;
-    bool playerSpotted;
 
     public PatrolState(EnemyStateMachine enemyStateMachine, NavMeshAgent agent) : base(EnemyStateMachine.EEnemyState.Patrol)
     {
@@ -20,12 +19,6 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
         enemyStateMachine.UpdateAnimator("isPatrolling",true);
 
         enemyStateMachine.FieldOfViewCheckForTargets();
-
-        if (enemyStateMachine.canSeeTarget)
-        {
-            playerSpotted = true;
-        }
-        else { playerSpotted = false; }
     }
 
     public override void ExitState()
@@ -39,13 +32,17 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Heal;
         }
-        else if (enemyStateMachine.hasReachedDestination && !playerSpotted)
+        else if (enemyStateMachine.hasReachedDestination && !enemyStateMachine.canSeeTarget)
         {
             return EnemyStateMachine.EEnemyState.Idle;
         }
-        else if (playerSpotted || enemyStateMachine.isBeingAttacked)
+        else if (enemyStateMachine.canSeeTarget)
         {
             return EnemyStateMachine.EEnemyState.Chase;
+        }
+        else if (enemyStateMachine.reportIsDead())
+        {
+            return EnemyStateMachine.EEnemyState.Dead;
         }
         else
         {
@@ -72,12 +69,5 @@ internal class PatrolState : BaseState<EnemyStateMachine.EEnemyState>
     public override void UpdateState()
     {
         enemyStateMachine.FieldOfViewCheckForTargets();
-
-        if (enemyStateMachine.canSeeTarget)
-        {
-            playerSpotted = true;
-        }
-        else { playerSpotted = false;}
-
     }
 }

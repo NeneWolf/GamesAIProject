@@ -10,6 +10,8 @@ public class DropBehaviour : MonoBehaviour
     HexTile tile;
     float halfHeight;
     float hextileY;
+
+
     [SerializeField] float speedOfDroppingFromSpawn;
 
     [SerializeField] int healAmount = 10;
@@ -81,5 +83,10 @@ public class DropBehaviour : MonoBehaviour
         }
 
         
+    }
+
+    public HexTile ReportTile()
+    {
+        return tile;
     }
 }

@@ -502,14 +502,14 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 439
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.08167139, y: 0.11119015, z: 0.16367355}
-  m_Center: {x: 0.035102665, y: -0.051498305, z: -0.019999996}
+  m_Size: {x: 0.49082598, y: 0.25187528, z: 0.16367355}
+  m_Center: {x: -0.00651519, y: -0.15034255, z: -0.019999996}
 --- !u!136 &2617619963344026032
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -523,7 +523,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.Build;
 using UnityEngine;
@@ -58,23 +59,29 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     public bool waiting = true;
     public bool isBeingAttacked;
 
-    [Header("Healing & Call for help")]
+    [Space(2)]
+    [Header("Healing")]
     public GameObject nearestHeal;
     public bool isThereHealing;
 
+    [Space(2)]
+    [Header("Call For Help")]
     public GameObject[] allNearbyEnemies;
+    bool hasCalledForHelp;
     public bool isBeingCalledForHelp;
 
-    //Pathfinding
-    [Header("Pathfinding")]
-    RaycastHit m_hitInfo = new RaycastHit();
+    [Space(2)]
+    [Header("Path - Random/Target")]
     public HexTile targetTile;
     public HexTile currentTile;
     public HexTile nextTile;
     public bool hasReachedDestination;
     public bool gotPath = false;
     public bool displayPath = false;
+    public bool isPlayerInReachToAttack;
+    public bool movingToAttack;
 
+    RaycastHit m_hitInfo = new RaycastHit();
     List<HexTile> path;
     List<HexTile> currentPath;
 
@@ -82,8 +89,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     List<HexTile> analised = new List<HexTile>();
     List<HexTile> notanalised = new List<HexTile>();
 
+    //Pathfinding
+    [Header("UI")]
+    [SerializeField] TextMeshProUGUI currentStateDisplay;
+    [SerializeField] TextMeshProUGUI health;
 
-    public bool movingToAttack;
 
     // Enum of the enemy states
     public enum EEnemyState
@@ -134,7 +144,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     public void Update()
     {
+        //Deals with transitions
+        #region Transitions
         currentStateDisplayTEST = currentState.stateKey;
+        currentStateDisplay.text = currentState.stateKey.ToString();
+
         nextStateKey = currentState.GetNextState();
 
         if (!isTransitioningState && nextStateKey.Equals(currentState.stateKey))
@@ -145,19 +159,52 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         {
             TransitionState(nextStateKey);
         }
+        #endregion
 
-        if (currentHealth <= 0)
+        if (!isDead)
         {
-            TransitionState(EEnemyState.Dead);
+            health.text = currentHealth.ToString();
+
+            //Checking Health
+            if (currentHealth <= 0)
+            {
+                isDead = true;
+            }
+
+            //Always checking for targets ( player, village, castle )
+            FieldOfViewCheckForTargets();
+
+            //Handle Enemy Movement Behaviour
+            if (gotPath)
+            {
+                HandleEnemyMovement();
+            }
+
+            //Handle Checking for Player
+            if (target != null && target.CompareTag("Player"))
+            {
+                FindPlayer();
+            }
+
+
+            if (isBeingAttacked && !canSeeTarget && currentState.stateKey != EEnemyState.Heal)
+            {
+                target = player;
+                TransitionState(EEnemyState.Chase);
+            }
+
+            if(currentHealth < maxHealth / 2 && !isThereHealing && !hasCalledForHelp)
+            {
+                hasCalledForHelp = true;
+                FindAllEnemiesAndCallForHelp();
+            }
+
+        }
+        else
+        {
+            health.text = "Enemy Dead";
         }
 
-        FieldOfViewCheckForTargets();
-
-
-        if (gotPath)
-        {
-            HandleEnemyMovement();
-        }
     }
 
     void AddStates()
@@ -169,7 +216,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         states.Add(EEnemyState.Chase, new ChaseState(this,navMeshAgent));
         states.Add(EEnemyState.AttackMelee, new AttackMelee(this, navMeshAgent));
         states.Add(EEnemyState.AttackRanged, new AttackRanged(this));
-        states.Add(EEnemyState.Dead, new DeadState());
+        states.Add(EEnemyState.Dead, new DeadState(this, waiting));
 
         // Set the initial state
         currentState = states[EEnemyState.Idle];
@@ -192,14 +239,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
                     if (!Physics.Raycast(transform.forward, directionToPlayer, distanceToPlayer, whatIsTargetMask))
                     {
-                        if (col.gameObject.tag == "Player" && currentNumberOfVillages == 0 && !isPlayerCastleAlive)
+                        if (col.gameObject.tag == "Player")
                             target = col.gameObject;
-                        else if (currentNumberOfVillages > 0 && col.gameObject.tag == "Village")
+                        else if (col.gameObject.tag == "Village")
                             target = col.gameObject;
-                        else if (currentNumberOfVillages == 0 && isPlayerCastleAlive)
+                        else if (col.gameObject.tag == "PlayerCastle")
                             target = playerCastle;
-                        else if(col.gameObject.tag == "Player" && colliders.Length == 2)
-                            target = col.gameObject;
 
                         canSeeTarget = true;
                     }
@@ -228,7 +273,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-       // isBeingAttacked = true;
+
+        isBeingAttacked = true;
 
         if(currentHealth <= 0)
         {
@@ -241,7 +287,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     public bool CheckNeedsHealingStates()
     {
-        if(currentHealth < maxHealth / 2)
+        if(currentHealth < maxHealth / 2 && currentHealth > maxHealth * 0.25f)
         {
               FindTheNearestHealingTile();
               if (navMeshAgent.speed == speed) { navMeshAgent.speed /= 2; }
@@ -249,8 +295,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
         else
         {
-            navMeshAgent.speed = speed;
-            return false;
+            if(currentHealth < maxHealth * 0.25f)
+            {
+                navMeshAgent.speed /= 2;
+                return false;
+            }
+            else
+            {
+                navMeshAgent.speed = speed;
+                return false;
+            }
         }
     }
 
@@ -281,7 +335,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
         else
         {
-            target = null;
             isThereHealing = false;
         }
 
@@ -293,17 +346,17 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
         foreach(GameObject enemy in allNearbyEnemies)
         {
-            if (Vector3.Distance(this.transform.position,enemy.transform.position) < 15f)
+            if (enemy.TryGetComponent<EnemyStateMachine>(out EnemyStateMachine stateMachine))
             {
-                enemy.gameObject.GetComponent<EnemyStateMachine>().isBeingCalledForHelp = true;
-                enemy.gameObject.GetComponent<EnemyStateMachine>().target = target;
-                enemy.gameObject.GetComponent<EnemyStateMachine>().currentState = states[EEnemyState.Chase];
-                enemy.gameObject.GetComponent<EnemyStateMachine>().currentState.EnterState();
+                if (Vector3.Distance(this.transform.position, enemy.transform.position) < 15f)
+                {
+                    enemy.gameObject.GetComponent<EnemyStateMachine>().isBeingCalledForHelp = true;
+                    enemy.gameObject.GetComponent<EnemyStateMachine>().target = target;
+                    enemy.gameObject.GetComponent<EnemyStateMachine>().TransitionState(EEnemyState.Chase);
+                }
             }
         }
     }
-
-
 
     public void Heal(int value)
     {
@@ -315,15 +368,10 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }   
     }
 
-
-
-
     public void UpdateAnimator(string animation, bool status)
     {
         animator.SetBool(animation, status);
     }
-
-
 
     //Mainly For Idle State
     public void WaitForTime(int time)
@@ -335,69 +383,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         waiting = true;
         yield return new WaitForSeconds(amount);
         waiting = false;
-    }
-
-
-
-
-
-
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(currentState.stateKey == EEnemyState.Chase || currentState.stateKey == EEnemyState.Heal)
-        {
-            currentState.OnTriggerEnter(other);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (currentState.stateKey == EEnemyState.Chase)
-        {
-            currentState.OnTriggerExit(other);
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (currentState.stateKey == EEnemyState.Chase)
-        {
-            currentState.OnTriggerStay(other);
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(transform.position, 2);
-        Gizmos.DrawWireSphere(transform.position, 6);
-
-
-        if (displayPath && gotPath)
-        {
-            foreach (HexTile tile in analised)
-            {
-                Gizmos.color = Color.blue;
-                Gizmos.DrawSphere(tile.position, 1f);
-            }
-
-            foreach (HexTile tile in notanalised)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(tile.position, 1f);
-            }
-
-            foreach (HexTile tile in path)
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawSphere(tile.position, 1f);
-            }
-        }
-    }
-
-    public bool reportIsDead()
-    {
-        return isDead;
     }
 
 
@@ -457,23 +442,30 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         SetAgentPath(path);
     }
 
-    public void FindPathToTarget()
+    public void FindPathToTarget(bool movingToAttack)
     {
         if(target != null)
         {
-            if(target.CompareTag("Player"))
+            if (target.CompareTag("Player"))
             {
                 targetTile = target.GetComponent<PlayerMovement>().currentTile;
             }
-            else if(target.CompareTag("Village") || target.CompareTag("PlayerCastle"))
+            else if (target.CompareTag("Village") || target.CompareTag("PlayerCastle"))
             {
                 targetTile = target.GetComponent<DetailMovement>().currentTile;
             }
+            else if(target.CompareTag("Heal"))
+            {
+                targetTile = target.GetComponent<DropBehaviour>().ReportTile();
+            }
 
             path = PathFinder.FindPath(currentTile, targetTile);
-            path.RemoveAt(path.Count - 1);
+            
 
-            movingToAttack = true;
+            this.movingToAttack = movingToAttack;
+
+            if(movingToAttack)
+                path.RemoveAt(path.Count - 1);
 
             analised = pathFinder.GetTileListAnalised();
             notanalised = pathFinder.GetTileListNotAnalised();
@@ -481,7 +473,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             currentPath = path;
             gotPath = true;
             SetAgentPath(path);
-
         }
     }
 
@@ -542,26 +533,106 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
-    public bool FindPlayer()
+    public void FindPlayer()
     {
         foreach (HexTile neiTile in currentTile.neighbours)
         {
             if (neiTile.GetComponent<HexTile>().hasPlayer)
             {
-                return true;
+                isPlayerInReachToAttack = true;
+                return;
             }
-            else { return false; }
+            else { isPlayerInReachToAttack = false; }
         }
-
-        return false;
     }
 
     public void RotateToTarget()
     {
-        Vector3 lookPos = target.transform.position - transform.position;
-        lookPos.y = 0;
-        Quaternion rotation = Quaternion.LookRotation(lookPos);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
+        if(target != null)
+        {
+            Vector3 lookPos = target.transform.position - transform.position;
+            lookPos.y = 0;
+            Quaternion rotation = Quaternion.LookRotation(lookPos);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, speed);
+        }
+    }
+
+    public void HandleAttackMeleeTarget()
+    {
+        if (isPlayerInReachToAttack)
+        {
+            if (target.CompareTag("Player"))
+            {
+                target.GetComponent<PlayerMovement>().TakeDamage(damage);
+            }
+            else
+            {
+                target.GetComponent<DetailMovement>().TakeDamage(damage);
+            }
+        }
+    }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (currentState.stateKey == EEnemyState.Chase || currentState.stateKey == EEnemyState.Heal)
+        {
+            currentState.OnTriggerEnter(other);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (currentState.stateKey == EEnemyState.Chase)
+        {
+            currentState.OnTriggerExit(other);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (currentState.stateKey == EEnemyState.Chase)
+        {
+            currentState.OnTriggerStay(other);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, 2);
+        Gizmos.DrawWireSphere(transform.position, 6);
+
+
+        if (displayPath && gotPath)
+        {
+            foreach (HexTile tile in analised)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in notanalised)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in path)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+        }
+    }
+
+    public bool reportIsDead()
+    {
+        return isDead;
+    }
+
+    public void KillEnemy()
+    {
+          Destroy(this.gameObject);
     }
 
 }
