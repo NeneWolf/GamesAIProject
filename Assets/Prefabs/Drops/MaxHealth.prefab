@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 6580044192149005926}
   - component: {fileID: 4603528039440621449}
   m_Layer: 8
-  m_Name: Heal
-  m_TagString: Heal
+  m_Name: MaxHealth
+  m_TagString: MaxHealth
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -119,6 +119,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speedOfDroppingFromSpawn: 0.5
-  healAmount: 10
+  healAmount: 90
   damageIncrease: 2
   increaseMaxHealth: 10

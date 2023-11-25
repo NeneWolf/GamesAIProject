@@ -61,9 +61,9 @@ public class DropBehaviour : MonoBehaviour
         {
             case "Heal":
                 return healAmount;
-            case "IncreaseDamage":
+            case "Damage":
                 return damageIncrease;
-            case "IncreaseMaxHealth":
+            case "MaxHealth":
                 return increaseMaxHealth;
             default: return 0;
         }
@@ -73,7 +73,19 @@ public class DropBehaviour : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            other.gameObject.GetComponent<PlayerMovement>().Heal(healAmount);
+            if(tag == "Heal")
+            {
+                other.gameObject.GetComponent<PlayerMovement>().Heal(healAmount);
+            }
+            else if(tag == "Damage")
+            {
+                other.gameObject.GetComponent<PlayerMovement>().Increatedamage(damageIncrease);
+            }
+            else if(tag == "MaxHealth")
+            {
+                other.gameObject.GetComponent<PlayerMovement>().IncreaseMaxHealth(increaseMaxHealth);
+            }
+            
             Destroy(this.gameObject);
         }
         else if (other.gameObject.CompareTag("Enemy"))

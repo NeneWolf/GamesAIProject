@@ -16,11 +16,14 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     Animator animator;
     SphereCollider sphereCollider;
 
+    public string ID;
     public GameObject enemy;
+
+    [SerializeField] EEnemyType enemyType;
 
     // States of the enemy
     [Header("EnemyStats")]
-    int maxHealth = 100;
+    [SerializeField] int maxHealth = 100;
     [SerializeField] int currentHealth;
     [SerializeField] int damage = 10;
     bool isDead;
@@ -40,7 +43,13 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     GameObject player;
     public GameObject target;
 
-    public int patrolRadius = 10;   
+    public int patrolRadius = 10;
+
+    [Space(2)]
+    [Header("Blue - Bullet")]
+    [SerializeField] GameObject bullet;
+    [SerializeField] Transform bulletSpawnPoint;
+
 
     [Header("FieldOfView")]
     [Space(10)]
@@ -91,6 +100,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     //Pathfinding
     [Header("UI")]
+    [SerializeField] TextMeshProUGUI enemyID;
     [SerializeField] TextMeshProUGUI currentStateDisplay;
     [SerializeField] TextMeshProUGUI health;
 
@@ -105,6 +115,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         AttackMelee,
         AttackRanged,
         Dead
+    }
+
+    public enum EEnemyType
+    {
+        Red,
+        Blue
     }
 
     private void Awake()
@@ -193,7 +209,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
                 TransitionState(EEnemyState.Chase);
             }
 
-            if(currentHealth < maxHealth / 2 && !isThereHealing && !hasCalledForHelp)
+            if(currentHealth < maxHealth / 2 && !isThereHealing && !hasCalledForHelp && enemyType == EEnemyType.Red)
             {
                 hasCalledForHelp = true;
                 FindAllEnemiesAndCallForHelp();
@@ -559,7 +575,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     public void HandleAttackMeleeTarget()
     {
-        if (isPlayerInReachToAttack)
+        if (isPlayerInReachToAttack && enemyType ==EEnemyType.Red)
         {
             if (target.CompareTag("Player"))
             {
@@ -569,6 +585,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             {
                 target.GetComponent<DetailMovement>().TakeDamage(damage);
             }
+        }
+        else if(isPlayerInReachToAttack && enemyType == EEnemyType.Blue)
+        {
+            GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.position, Quaternion.identity);
+            bulletClone.GetComponent<EnemyBulletBehaviour>().SetDamage(damage);
         }
     }
 

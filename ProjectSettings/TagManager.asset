@@ -10,6 +10,8 @@ TagManager:
   - PlayerCastle
   - EnemySpawnCastle
   - Heal
+  - Damage
+  - MaxHealth
   layers:
   - Default
   - TransparentFX

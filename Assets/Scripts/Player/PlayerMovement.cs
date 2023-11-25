@@ -364,6 +364,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void Increatedamage(int value)
+    {
+        attack += value;
+    }
+
+    public void IncreaseMaxHealth(int value)
+    {
+        health += value;
+    }
+
     public void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Heal")
