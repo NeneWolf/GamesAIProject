@@ -13,8 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject playerPrefab;
     [SerializeField] GameObject mainMenuCanvas;
 
-    //Change to private later
-    public bool hasDecor;
+    public bool hasGameStarted;
 
     private void Awake()
     {
@@ -23,7 +22,11 @@ public class GameManager : MonoBehaviour
 
     public void StartGame(bool hasDecor)
     {
-        this.hasDecor = hasDecor;
+        hasGameStarted = true;
+
+        //Destroy GhostPlayer & Reset the tile information
+        DestroyGhost();
+
 
         //Disable Menu
         mainMenuCanvas.SetActive(false);
@@ -42,7 +45,7 @@ public class GameManager : MonoBehaviour
     {
         tile = tileManager.GetRandomTile();
 
-        while (tile.hasObjects || tile == null)
+        while (tile.hasObjects && tile == null)
         {
             tile = tileManager.GetRandomTile();
         }
@@ -53,6 +56,16 @@ public class GameManager : MonoBehaviour
         {
             GameObject playerInstance = Instantiate(player, new Vector3(tile.position.x, hit.point.y, tile.position.z), Quaternion.identity);
             playerInstance.GetComponent<PlayerMovement>().currentTile = tile;
+        }
+    }
+
+    void DestroyGhost()
+    {
+        GameObject ghost = GameObject.FindGameObjectWithTag("GhostPlayer");
+
+        if (ghost != null)
+        {
+            Destroy(ghost);
         }
     }
 }

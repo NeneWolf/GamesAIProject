@@ -149,7 +149,7 @@ public class PlayerMovement : MonoBehaviour
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
-                path = PathFinder.FindPath(currentTile, target);
+                path = PathFinder.FindPath(currentTile, target,false);
 
 
                 analised = pathFinder.GetTileListAnalised();
@@ -175,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
-                path = PathFinder.FindPath(currentTile, target);
+                path = PathFinder.FindPath(currentTile, target, false);
                 path.RemoveAt(path.Count - 1);
 
                 analised = pathFinder.GetTileListAnalised();
@@ -309,7 +309,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FindPathToDestination(HexTile current, HexTile destination)
     {
-        path = PathFinder.FindPath(currentTile, destination);
+        path = PathFinder.FindPath(currentTile, destination, false);
         currentPath = path;
         gotPath = true;
     }

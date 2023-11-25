@@ -9,11 +9,14 @@ public class PathFinder : MonoBehaviour
     static Dictionary<HexTile, Node> analised = new Dictionary<HexTile, Node>();
     static Dictionary<HexTile, Node> notanalised = new Dictionary<HexTile, Node>();
 
+    static bool DecorCheck;
 
-    public static List<HexTile> FindPath(HexTile origin, HexTile destination)
+    public static List<HexTile> FindPath(HexTile origin, HexTile destination, bool isForDecorCheck)
     {
         Dictionary<HexTile, Node> nodesNotEvaluated = new Dictionary<HexTile, Node>();
         Dictionary<HexTile, Node> nodesAlreadyEvaluated = new Dictionary<HexTile, Node>();
+
+        DecorCheck = isForDecorCheck;
 
         Node startNode = new Node(origin, origin, destination, 0);
 
@@ -71,11 +74,14 @@ public class PathFinder : MonoBehaviour
         {
             Node node = new Node(tile, origin, destination, currentNode.GetCost());
 
-            //if the node isn't something we can reverse
-            if (tile.hasObjects)
+            if (!DecorCheck)
             {
-                node.baseCost = 9999;
-                //continue;
+                //if the node isn't something we can reverse
+                if (tile.hasObjects)
+                {
+                    node.baseCost = 9999;
+                    //continue;
+                }
             }
 
             neightbours.Add(node);

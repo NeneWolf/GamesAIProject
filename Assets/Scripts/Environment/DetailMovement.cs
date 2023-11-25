@@ -5,6 +5,11 @@ using UnityEngine.AI;
 
 public class DetailMovement : MonoBehaviour
 {
+    [SerializeField] bool ImportantBuilding;
+
+    GameManager gameManager;
+    PathFinder pathFinder;
+
     int maxhealth = 100;
     [SerializeField] int currentHealth;
 
@@ -13,18 +18,46 @@ public class DetailMovement : MonoBehaviour
     public HexTile currentTile;
 
     public bool isDestroyed;
-    bool hasUpdated = false;
+    bool hasUpdated;
+
+
+    [Header("Path Finding for Ghost player")]
+    GameObject ghostPlayer;
+    public bool displayPath;
+    public HexTile target;
+
+    List<HexTile> path;
+    List<HexTile> analised = new List<HexTile>();
+    List<HexTile> notanalised = new List<HexTile>();
 
     private void Awake()
     {
         parentObject = GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
-        currentHealth = maxhealth;
+        ghostPlayer = GameObject.FindAnyObjectByType<GhostPlayerB>().gameObject;
+        gameManager = GameObject.FindAnyObjectByType<GameManager>();
+        pathFinder = GameObject.FindAnyObjectByType<PathFinder>();
+
+        target = GameObject.FindAnyObjectByType<GhostPlayerB>().currentTile;
+
         currentTile = parentObject.GetComponent<HexTile>();
+        currentHealth = maxhealth;
+        
     }
 
     public void Start()
     {
         UpdatePosition();
+        CheckForPathFinder();
+    }
+
+    private void Update()
+    {
+        if (gameManager.hasGameStarted) { 
+            target = GameObject.FindAnyObjectByType<PlayerMovement>().currentTile;
+
+            if (displayPath)
+                CheckForPathFinder();
+        }
     }
 
     public void UpdatePosition()
@@ -65,6 +98,55 @@ public class DetailMovement : MonoBehaviour
     public bool ReportStatus()
     {
         return isDestroyed;
+    }
+
+
+    void CheckForPathFinder()
+    {
+        if (!gameManager.hasGameStarted)
+            path = PathFinder.FindPath(currentTile, target, true);
+        else path = PathFinder.FindPath(currentTile, target, false);
+
+        analised = pathFinder.GetTileListAnalised();
+        notanalised = pathFinder.GetTileListNotAnalised();
+
+        if(ImportantBuilding && !gameManager.hasGameStarted)
+        {
+            foreach (HexTile tile in path)
+            {
+                if(tile.hasObjects && !tile.isImportantBuilding)
+                {
+                    DestroyImmediate(tile.DecorInHexigon);
+                    tile.hasObjects = false;
+                }
+            }
+        }
+
+    }
+
+    private void OnDrawGizmos()
+    {
+
+        if (displayPath)
+        {
+            foreach (HexTile tile in analised)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in notanalised)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+
+            foreach (HexTile tile in path)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(tile.position, 1f);
+            }
+        }
     }
 
 }

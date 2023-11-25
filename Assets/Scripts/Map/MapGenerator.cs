@@ -72,6 +72,11 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject hexagonGridPref;
     [SerializeField] private GameObject hexagonGridViewPrefab;
 
+
+    [Header("Path Finder Check")]
+    public bool hasSpawnedGhostPlayer;
+    [SerializeField] GameObject ghostPlayer;
+
     private void Awake()
     {
         fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);
@@ -100,7 +105,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        // ADD TO TURN ON THE PLANE TO VIEW THE NOISE MAP & FALL OFF MAP
+        //Generate the map - Different modes
         if (drawMode == DrawMode.NoiseMap)
             display.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap));
         else if (drawMode == DrawMode.FallOffMap)
@@ -111,6 +116,14 @@ public class MapGenerator : MonoBehaviour
 
     void HexMapGenerator()
     {
+        hasSpawnedGhostPlayer = false;
+        GameObject ghostCheck = GameObject.FindGameObjectWithTag("GhostPlayer");
+
+        if(ghostCheck != null)
+        {
+            DestroyImmediate(ghostCheck);
+        }
+
         //clean the list
         if(playerArea.Count > 0) playerArea.Clear();
         if(enemyArea.Count > 0) enemyArea.Clear();
@@ -173,12 +186,19 @@ public class MapGenerator : MonoBehaviour
                         hexagonTile.GetComponent<HexTile>().position = hexagonTile.transform.position;
                         hexagonTile.GetComponent<HexTile>().offSetCoordinate = new Vector2Int(x, y);
                         hexagonTile.GetComponent<HexTile>().cubeCoordinate = OffSetToCube(hexagonTile.GetComponent<HexTile>().offSetCoordinate);
+                        hexagonTile.GetComponent<HexTile>().heightWeight = currentHeight;
 
                         AddTilesIntoSection(i);
 
+                        //Spawn Ghost Player
+                        if (!hasSpawnedGhostPlayer)
+                        {
+                            GameObject ghost = Instantiate(ghostPlayer, hexagonTile.transform.position, Quaternion.identity);
+                            ghost.GetComponent<GhostPlayerB>().currentTile = hexagonTile.GetComponent<HexTile>();
+                            hasSpawnedGhostPlayer = true;
+                        }
 
-                        //Remove coment to add the decor
-                        //// Spawn the object on top of the hexagon
+                        //Spawn the decoration
                         if (spawnDecor)
                         {
                             SpawnMapDecoration(hexagonTile, i);
@@ -203,6 +223,11 @@ public class MapGenerator : MonoBehaviour
 
                     detail = Instantiate(KeyBuildings[0], playerArea[randomTile].gameObject.transform.position, playerArea[randomTile].transform.transform.rotation, playerArea[randomTile].gameObject.transform.parent);
                     detail.GetComponent<DetailMovement>().UpdatePosition();
+                    hexagonTile.GetComponent<HexTile>().DecorInHexigon = detail;
+                    hexagonTile.GetComponent<HexTile>().hasBeenRequestedToClearNeightbours = true;
+                    hexagonTile.GetComponent<HexTile>().isImportantBuilding = true;
+                    // ^ better ways to set it up... for now its spaguetti code
+
                     playerArea.RemoveAt(randomTile);
                 }
             }
@@ -212,8 +237,11 @@ public class MapGenerator : MonoBehaviour
                 int randomTile = Random.Range(0, playerArea.Count);
                 hexagonTile = playerArea[randomTile];
                 detail = Instantiate(KeyBuildings[1], playerArea[randomTile].gameObject.transform.position, playerArea[randomTile].transform.transform.rotation, playerArea[randomTile].gameObject.transform.parent);
-
                 detail.GetComponent<DetailMovement>().UpdatePosition();
+                hexagonTile.GetComponent<HexTile>().DecorInHexigon = detail;
+                hexagonTile.GetComponent<HexTile>().hasBeenRequestedToClearNeightbours = true;
+                hexagonTile.GetComponent<HexTile>().isImportantBuilding = true;
+                // ^ better ways to set it up... for now its spaguetti code
                 playerArea.Clear();
             }
 
@@ -223,6 +251,11 @@ public class MapGenerator : MonoBehaviour
                 hexagonTile = enemyArea[randomTile];
                 detail = Instantiate(KeyBuildings[2], enemyArea[randomTile].transform.position, enemyArea[randomTile].transform.transform.rotation, enemyArea[randomTile].gameObject.transform.parent);
                 detail.GetComponent<DetailMovement>().UpdatePosition();
+                hexagonTile.GetComponent<HexTile>().DecorInHexigon = detail;
+                hexagonTile.GetComponent<HexTile>().hasBeenRequestedToClearNeightbours = true;
+                hexagonTile.GetComponent<HexTile>().isImportantBuilding = true;
+                // ^ better ways to set it up... for now its spaguetti code
+
                 enemyArea.Clear();
             }
         }
@@ -249,9 +282,10 @@ public class MapGenerator : MonoBehaviour
 
                     detail = Instantiate(regions[i].detailPrefabs[random].detailPrefab, hexagonTile.transform.position, hexagonTile.transform.transform.rotation, emptyParent.transform);
                     detail.GetComponent<DetailMovement>().UpdatePosition();
+                    hexagonTile.GetComponent<HexTile>().DecorInHexigon = detail;
 
-                    if (playerArea.Contains(hexagonTile.gameObject)) { playerArea.Remove(hexagonTile.gameObject); }
-                    else if (enemyArea.Contains(hexagonTile.gameObject)) { enemyArea.Remove(hexagonTile.gameObject); }
+                    if (playerArea.Contains(hexagonTile.gameObject)) {playerArea.Remove(hexagonTile.gameObject);}
+                    else if (enemyArea.Contains(hexagonTile.gameObject)) {enemyArea.Remove(hexagonTile.gameObject);}
                 }
                 else
                 {
@@ -261,6 +295,7 @@ public class MapGenerator : MonoBehaviour
                     {
                         detail = Instantiate(regions[i].detailPrefabs[0].detailPrefab, hexagonTile.transform.position, hexagonTile.transform.transform.rotation, emptyParent.transform);
                         detail.GetComponent<DetailMovement>().UpdatePosition();
+                        hexagonTile.GetComponent<HexTile>().DecorInHexigon = detail;
 
                         if (playerArea.Contains(hexagonTile.gameObject)) { playerArea.Remove(hexagonTile.gameObject);} 
                         else if(enemyArea.Contains(hexagonTile.gameObject)) { enemyArea.Remove(hexagonTile.gameObject); }

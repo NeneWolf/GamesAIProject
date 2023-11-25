@@ -446,7 +446,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     public void FindPathToRandomPoint()
     {
         targetTile = RandomNavmeshLocation();
-        path = PathFinder.FindPath(currentTile, targetTile);
+        path = PathFinder.FindPath(currentTile, targetTile, false);
 
         movingToAttack = false;
 
@@ -475,7 +475,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
                 targetTile = target.GetComponent<DropBehaviour>().ReportTile();
             }
 
-            path = PathFinder.FindPath(currentTile, targetTile);
+            path = PathFinder.FindPath(currentTile, targetTile, false);
             
 
             this.movingToAttack = movingToAttack;

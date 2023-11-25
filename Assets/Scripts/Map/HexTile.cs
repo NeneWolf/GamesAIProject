@@ -11,9 +11,14 @@ public class HexTile : MonoBehaviour
     public Vector2Int offSetCoordinate;
     public Vector3Int cubeCoordinate;
     public Vector3 surviceCoordinate;
+    public float heightWeight;
 
     public List<HexTile> neighbours;
+    public GameObject DecorInHexigon;
+    public bool hasBeenRequestedToClearNeightbours;
+
     public bool hasObjects = false;
+    public bool isImportantBuilding = false;
     public bool hasEnemy = false;
     public bool hasPlayer = false;
 
@@ -30,6 +35,15 @@ public class HexTile : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (hasBeenRequestedToClearNeightbours && neighbours != null)
+        {
+            DestroyNeighboursDecor();
+        }
+    }
+
+
     public void OnHighlightTile()
     {
         TileManager tilemanager = GameObject.FindFirstObjectByType<TileManager>();
@@ -42,33 +56,45 @@ public class HexTile : MonoBehaviour
         tilemanager.OnSelectTile(this);
     }
 
-
-    private void OnCollisionEnter(Collision collision)
+    void DestroyNeighboursDecor()
     {
-        if (collision.gameObject.tag == "Player")
+        foreach (HexTile neighbour in neighbours)
         {
-            hasObjects = true;
-
-        }
-        else if(collision.gameObject.tag == "Enemy")
-        {
-            enemy = collision.gameObject;
-            hasObjects = true;
-            hasEnemy = true;
+            if (neighbour.hasObjects && !isImportantBuilding)
+            {
+                DestroyImmediate(neighbour.GetComponent<HexTile>().DecorInHexigon);
+                neighbour.hasObjects = false;
+            }
         }
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.tag == "Player")
-        {
-            hasObjects = false;
-        }
-        else if (collision.gameObject.tag == "Enemy")
-        {
-            hasObjects = false;
-            hasEnemy = false;
-            enemy = null;
-        }
-    }
+
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.tag == "Player")
+    //    {
+    //        hasObjects = true;
+
+    //    }
+    //    else if(collision.gameObject.tag == "Enemy")
+    //    {
+    //        enemy = collision.gameObject;
+    //        hasObjects = true;
+    //        hasEnemy = true;
+    //    }
+    //}
+
+    //private void OnCollisionExit(Collision collision)
+    //{
+    //    if (collision.gameObject.tag == "Player")
+    //    {
+    //        hasObjects = false;
+    //    }
+    //    else if (collision.gameObject.tag == "Enemy")
+    //    {
+    //        hasObjects = false;
+    //        hasEnemy = false;
+    //        enemy = null;
+    //    }
+    //}
 }
