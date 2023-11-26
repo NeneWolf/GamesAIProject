@@ -13,7 +13,7 @@ public class MapGeneratorEditor : Editor
 
         if (DrawDefaultInspector())
         {
-            if (mapGen.autoUpdate)
+            if (mapGen.autoUpdate && !mapGen.hasGameStarted)
             {
                 mapGen.GenerateMap();
             }

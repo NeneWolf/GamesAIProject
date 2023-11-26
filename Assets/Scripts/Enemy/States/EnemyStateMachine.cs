@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 {
@@ -15,6 +16,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     PathFinder pathFinder;
     Animator animator;
     SphereCollider sphereCollider;
+    SpawnEnemies spawnEnemies;
 
     public string ID;
     public GameObject enemy;
@@ -26,6 +28,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     [SerializeField] int maxHealth = 100;
     [SerializeField] int currentHealth;
     [SerializeField] int damage = 10;
+    [SerializeField] float critChance;
     bool isDead;
     [SerializeField] int speed;
     [SerializeField] float attackRange = 2f;
@@ -104,7 +107,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     [SerializeField] TextMeshProUGUI currentStateDisplay;
     [SerializeField] TextMeshProUGUI health;
 
-
     // Enum of the enemy states
     public enum EEnemyState
     {
@@ -144,6 +146,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         navMeshAgent = GetComponent<NavMeshAgent>();
         navMeshPath = GetComponent<NavMeshAgent>().path;
         pathFinder = GameObject.FindAnyObjectByType<PathFinder>();
+        spawnEnemies = GameObject.FindAnyObjectByType<SpawnEnemies>();
 
         animator = GetComponent<Animator>();
         sphereCollider = GetComponent<SphereCollider>();
@@ -155,8 +158,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         // Initialize the enemy's health
         currentHealth = maxHealth;
         navMeshAgent.speed = speed;
-
-        // Temporary
     }
 
     public void InitialFindAllTargetsInformation()
@@ -179,7 +180,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         //Deals with transitions
         #region Transitions
         currentStateDisplayTEST = currentState.stateKey;
-        currentStateDisplay.text = currentState.stateKey.ToString();
+        currentStateDisplay.text = "State: "+ currentState.stateKey.ToString();
 
         nextStateKey = currentState.GetNextState();
 
@@ -195,7 +196,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
         if (!isDead)
         {
-            health.text = currentHealth.ToString();
+            health.text = "Health: " + currentHealth.ToString();
 
             //Checking Health
             if (currentHealth <= 0)
@@ -219,14 +220,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             }
 
 
-            if (isBeingAttacked && !canSeeTarget && currentState.stateKey != EEnemyState.Heal)
+            if (isBeingAttacked && !canSeeTarget)
             {
                 if(player == null)
                 {
                     player = GameObject.FindGameObjectWithTag("Player");
                 }
 
-                target = player;
+                if(currentState.stateKey != EEnemyState.Chase)
+                    target = player;
+
                 TransitionState(EEnemyState.AttackMelee);
             }
 
@@ -289,8 +292,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
-
-
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
@@ -303,8 +304,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             isDead = true;
         }
     }
-
-
 
     public bool CheckNeedsHealingStates()
     {
@@ -328,8 +327,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             }
         }
     }
-
-
 
     public void FindTheNearestHealingTile()
     {
@@ -369,11 +366,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out EnemyStateMachine stateMachine))
             {
-                if (Vector3.Distance(this.transform.position, enemy.transform.position) < 15f)
+                if (enemy != this.gameObject)
                 {
                     enemy.gameObject.GetComponent<EnemyStateMachine>().isBeingCalledForHelp = true;
                     enemy.gameObject.GetComponent<EnemyStateMachine>().target = target;
                     enemy.gameObject.GetComponent<EnemyStateMachine>().TransitionState(EEnemyState.Chase);
+                    return;
                 }
             }
         }
@@ -428,6 +426,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
         else
         {
+            if(currentState.stateKey != EEnemyState.Heal)
+            {
+                FindPlayer();
+                if (isPlayerInReachToAttack) { return; }
+            }
+
             hasReachedDestination = false;
             navMeshAgent.speed = speed;
 
@@ -437,7 +441,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
             nextTile = currentPath[1];
 
-            if(nextTile.hasObjects && currentTile != nextTile)
+            if (targetTile.hasObjects && !targetTile.hasPlayer && targetTile.enemy != this.gameObject)
+            {
+                gotPath = false;
+                path.Clear();
+                currentPath.Clear();
+                hasReachedDestination = true;
+                return;
+            }
+
+            if (nextTile.hasObjects && currentTile != nextTile && nextTile.enemy != this.gameObject)
             {
                 path.Clear();
                 currentPath.Clear();
@@ -550,7 +563,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
                 if (hexTile != null &&
                     !hexTile.GetComponent<HexTile>().hasObjects ||
-                    !hexTile.GetComponent<HexTile>().hasEnemy ||
                     !hexTile.GetComponent<HexTile>().hasEnemy)
                 {
                     hexTiles.Add(hexTile);
@@ -607,20 +619,40 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         {
             if (target.CompareTag("Player"))
             {
-                target.GetComponent<PlayerMovement>().TakeDamage(damage);
+                target.GetComponent<PlayerMovement>().TakeDamage(CalculateDamage());
             }
             else
             {
-                target.GetComponent<DetailMovement>().TakeDamage(damage);
+                target.GetComponent<DetailMovement>().TakeDamage(CalculateDamage());
             }
         }
         else if(isPlayerInReachToAttack && enemyType == EEnemyType.Blue)
         {
             GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
-            bulletClone.GetComponent<EnemyBulletBehaviour>().SetDamage(damage);
+            bulletClone.GetComponent<EnemyBulletBehaviour>().SetDamage(CalculateDamage());
         }
     }
+    //Symmetry for enemy damage
+    int CalculateDamage()
+    {
+        float randomValue  = Random.Range(0, 1);
 
+        if(randomValue <= critChance && currentHealth > maxHealth/2)
+        {
+            damage += 5;
+        }
+        else if (randomValue <= critChance && currentHealth <= maxHealth / 2 && currentHealth >= maxHealth * 0.25f)
+        {
+            damage += 2;
+        }
+
+        if(currentHealth < maxHealth * 0.25f)
+        {
+            damage -= 1;
+        }
+
+        return damage;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -681,6 +713,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     public void KillEnemy()
     {
+          spawnEnemies.EnemyKilled();
           Destroy(this.gameObject);
     }
 

@@ -14,10 +14,7 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
 
     public override void EnterState()
     {
-        enemyStateMachine.FindPlayer();
-
         enemyStateMachine.RotateToTarget();
-
         enemyStateMachine.UpdateAnimator("isAttacking", true);
     }
 
@@ -67,5 +64,8 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
     public override void UpdateState()
     {
         enemyStateMachine.FindPlayer();
+
+        if(enemyStateMachine.isPlayerInReachToAttack)
+            enemyStateMachine.RotateToTarget();
     }
 }

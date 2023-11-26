@@ -78,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
         {
             isDead = true;
             animator.SetBool("isDead", true);
+            StartCoroutine(Death());
         }
 
         if (!isDead)
@@ -392,30 +393,6 @@ public class PlayerMovement : MonoBehaviour
         health += value;
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.layer == 6)
-        {
-            float xDifference = this.transform.position.x - other.GetComponent<HexTile>().position.x;
-            float ZDifference = this.transform.position.z - other.GetComponent<HexTile>().position.z;
-
-            if(xDifference < 0.06f && ZDifference < 0.06f)
-            {
-                other.gameObject.GetComponent<HexTile>().hasObjects = true;
-                other.gameObject.GetComponent<HexTile>().hasPlayer = true;
-            }
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.layer == 6)
-        {
-            other.gameObject.GetComponent<HexTile>().hasObjects = false;
-            other.gameObject.GetComponent<HexTile>().hasPlayer = false;
-        }
-    }
-
     private void OnDrawGizmos()
     {
 
@@ -444,5 +421,22 @@ public class PlayerMovement : MonoBehaviour
     public bool ReportIsDead()
     {
         return isDead;
+    }
+
+    IEnumerator Death()
+    {
+        GameManager gameManager = GameObject.FindAnyObjectByType<GameManager>();
+        gameManager.UIDeadPlayer();
+
+        yield return new WaitForSeconds(10f);
+
+        DetailMovement detailMovement = GameObject.FindAnyObjectByType<DetailMovement>();
+
+        if (detailMovement != null)
+        {
+            detailMovement.ReportPlayerDead();
+        }
+
+        Destroy(gameObject);
     }
 }

@@ -11,8 +11,11 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] private Camera mainCamera;
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
+    [SerializeField] private GameObject freeLookCamera;
+    [SerializeField] private GameObject followCamera;
     [SerializeField] private Transform cameraTransform; // May switch to Cinemachine if i have time - Switch to cinemachine and regret it...oh well its cute
-    //public Transform followTarget;
+    public bool followTarget;
+    GameObject targetObject;
 
     [Header("Camera HandleFindPath")]
     [SerializeField] private float shiftSpeed;
@@ -51,10 +54,14 @@ public class CameraController : MonoBehaviour
     RaycastHit m_HitInfo = new RaycastHit();
     private HexTile target;
 
+    GameManager gameManager;
+
     private void Awake()
     {
         instance = this;
         cameraTransform = Camera.main.transform;
+
+        gameManager = FindAnyObjectByType<GameManager>();
     }
 
     void Start()
@@ -65,26 +72,11 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        // TO DO
-        //Will come back eventually to fix this ... not working - Add new camera for this to work and its too much effort
-        //if (followTarget != null)
-        //{
-        //    transform.position = followTarget.position;
-        //}
-        //else
-        //{
-
-        //}
-
-        CameraControlMouse();
-        CameraControlsKeyBoard();
-
-        //TO DO
-        //Change this to all wasd input
-        //if (Input.GetKeyDown(KeyCode.Escape))
-        //{
-        //    followTarget = null;
-        //}
+        if (freeLookCamera.gameObject.activeInHierarchy)
+        {
+            CameraControlMouse();
+            CameraControlsKeyBoard();
+        }
 
         //Track Mouse
         var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -96,6 +88,38 @@ public class CameraController : MonoBehaviour
             if(m_HitInfo.collider.gameObject.TryGetComponent<HexTile>(out target))
             {
                 target.OnHighlightTile();
+            }
+        }
+
+        //Could be cleaner...but it works sorry
+        if (Input.GetKeyDown(KeyCode.F) && gameManager.hasGameStarted)   
+        {
+            if (!followTarget)
+            {
+                if (Physics.Raycast(ray, out m_HitInfo) && m_HitInfo.collider.gameObject.tag == "Enemy")
+                {
+                    followTarget = true;
+                    followCamera.gameObject.SetActive(followTarget);
+                    freeLookCamera.gameObject.SetActive(!followTarget);
+
+                    targetObject = m_HitInfo.collider.gameObject;
+                    followCamera.GetComponent<CinemachineVirtualCamera>().Follow = targetObject.transform;
+                    followCamera.GetComponent<CinemachineVirtualCamera>().LookAt = targetObject.transform;
+                }
+            }
+            else
+            {
+                followTarget = false;
+            }
+
+
+            if (!followTarget && !freeLookCamera.gameObject.activeInHierarchy)
+            {
+                followCamera.gameObject.SetActive(followTarget);
+                freeLookCamera.gameObject.SetActive(!followTarget);
+
+                followCamera.GetComponent<CinemachineVirtualCamera>().Follow = null;
+                followCamera.GetComponent<CinemachineVirtualCamera>().LookAt = null;
             }
         }
     }

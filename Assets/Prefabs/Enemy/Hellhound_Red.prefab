@@ -73,11 +73,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2200202549158626455}
-  - component: {fileID: 6690410075262841260}
   - component: {fileID: 8821339855069902074}
   m_Layer: 0
   m_Name: ChangeTileHasObject
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -91,25 +90,12 @@ Transform:
   m_GameObject: {fileID: 683607587818178141}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.167, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5140033633163262942}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6690410075262841260
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 683607587818178141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1e8f904367271445977cfe7a520486a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemy: {fileID: 4038078222228396643}
 --- !u!65 &8821339855069902074
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -129,8 +115,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.27153215, y: 1.177686, z: 1}
-  m_Center: {x: 0, y: -0.1501773, z: 0}
+  m_Size: {x: 1.4462578, y: 1.383489, z: 0.03897267}
+  m_Center: {x: 0.18908775, y: -0.25307906, z: 0.02557848}
 --- !u!1 &761498165393276405
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,7 +978,7 @@ Transform:
   m_GameObject: {fileID: 4038078222228396643}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 169.72, y: 0, z: 127.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6274188, y: 0.6274188, z: 0.6274188}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1064,6 +1050,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   damage: 5
+  critChance: 0
   speed: 5
   attackRange: 2
   chaseRange: 5
@@ -1073,7 +1060,9 @@ MonoBehaviour:
   isPlayerCastleAlive: 1
   isPlayerAlive: 1
   target: {fileID: 0}
-  patrolRadius: 10
+  patrolRadius: 25
+  bullet: {fileID: 0}
+  bulletSpawnPoint: {fileID: 0}
   canSeeTarget: 0
   whatIsTargetMask:
     serializedVersion: 2
@@ -1118,10 +1107,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.93
+  m_Radius: 1.2
   m_Height: 3.5
   m_Direction: 2
-  m_Center: {x: 0, y: 1.73, z: 0.63}
+  m_Center: {x: 0, y: 1.43, z: 0.31}
 --- !u!135 &3178358666579002052
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1135,7 +1124,7 @@ SphereCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 260
+    m_Bits: 375
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -1151,7 +1140,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4038078222228396643}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1168,7 +1157,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!1 &4299577668067661294
 GameObject:

@@ -97,7 +97,7 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
 
             enemyStateMachine.FindPlayer();
 
-            if (!enemyStateMachine.gotPath)
+            if (!enemyStateMachine.isPlayerInReachToAttack && enemyStateMachine.hasReachedDestination)
             {
                 enemyStateMachine.FindPathToTarget(true);
             }

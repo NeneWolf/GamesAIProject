@@ -77,10 +77,20 @@ public class MapGenerator : MonoBehaviour
     public bool hasSpawnedGhostPlayer;
     [SerializeField] GameObject ghostPlayer;
 
+    GameManager gameManager;
+    [HideInInspector]
+    public bool hasGameStarted;
+
     private void Awake()
     {
         fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);
+        gameManager = FindAnyObjectByType<GameManager>();
         GenerateMap();
+    }
+
+    private void Update()
+    {
+        hasGameStarted = gameManager.hasGameStarted;
     }
 
     private void GeneratePerlinNoise()
@@ -90,6 +100,7 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap()
     {
+        
         GeneratePerlinNoise();
         MapDisplay display = FindAnyObjectByType<MapDisplay>();
 
@@ -213,12 +224,12 @@ public class MapGenerator : MonoBehaviour
         //Spawn Key Buildings
         if (spawnDecor)
         {
+            //Town/Villages
             if (numberOfVillages != 0 && hasSpawnVillage == false)
             {
                 for (int z = 0; z < numberOfVillages; z++)
                 {
                     int randomTile = Random.Range(0, playerArea.Count);
-
                     hexagonTile = playerArea[randomTile];
 
                     detail = Instantiate(KeyBuildings[0], playerArea[randomTile].gameObject.transform.position, playerArea[randomTile].transform.transform.rotation, playerArea[randomTile].gameObject.transform.parent);
@@ -230,12 +241,16 @@ public class MapGenerator : MonoBehaviour
 
                     playerArea.RemoveAt(randomTile);
                 }
+
+                hasSpawnVillage = true;
             }
 
+            //PlayerCastle
             if (hasSpawnCastle == false)
             {
                 int randomTile = Random.Range(0, playerArea.Count);
                 hexagonTile = playerArea[randomTile];
+
                 detail = Instantiate(KeyBuildings[1], playerArea[randomTile].gameObject.transform.position, playerArea[randomTile].transform.transform.rotation, playerArea[randomTile].gameObject.transform.parent);
                 detail.GetComponent<DetailMovement>().UpdatePosition();
                 hexagonTile.GetComponent<HexTile>().DecorInHexigon = detail;
@@ -245,6 +260,7 @@ public class MapGenerator : MonoBehaviour
                 playerArea.Clear();
             }
 
+            //EnemyCastle
             if (hasSpawnEnemyCastle == false)
             {
                 int randomTile = Random.Range(0, enemyArea.Count);
@@ -313,7 +329,7 @@ public class MapGenerator : MonoBehaviour
             // add tile into the list of playerArea
             playerArea.Add(hexagonTile.gameObject);
         }
-        else if (regions[i].height <= 1f && regions[i].height > 0.75f)
+        else if (regions[i].height >= 0.4f && regions[i].height <= 0.75f)
         {
             // add tile into the list of enemyArea
             enemyArea.Add(hexagonTile.gameObject);

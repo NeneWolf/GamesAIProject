@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -13,7 +14,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject playerPrefab;
     [SerializeField] GameObject mainMenuCanvas;
 
+    [SerializeField] GameObject diedCanvas;
+    [SerializeField] TextMeshProUGUI diedText;
+
     public bool hasGameStarted;
+    bool hasStartedRespawn;
 
     private void Awake()
     {
@@ -38,24 +43,29 @@ public class GameManager : MonoBehaviour
         //In-game UI
 
         //Spawn Player
-        SpawnPlayer(playerPrefab, hasDecor);
+        SpawnPlayer();
     }
 
-    void SpawnPlayer(GameObject player, bool hasDecor)
+    public void SpawnPlayer()
     {
         tile = tileManager.GetRandomTile();
 
-        while (tile.hasObjects && tile == null)
+        while (tile.hasObjects && tile == null && tile.heightWeight > 0.7f)
         {
             tile = tileManager.GetRandomTile();
         }
 
         RaycastHit hit;
 
-        if (Physics.Raycast(tile.transform.position + new Vector3(0, 50, 0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
+        if (Physics.Raycast(tile.transform.position + new Vector3(0,10, 0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
         {
-            GameObject playerInstance = Instantiate(player, new Vector3(tile.position.x, hit.point.y, tile.position.z), Quaternion.identity);
+            GameObject playerInstance = Instantiate(playerPrefab, new Vector3(tile.position.x, hit.point.y, tile.position.z), Quaternion.identity);
             playerInstance.GetComponent<PlayerMovement>().currentTile = tile;
+        }
+        else
+        {
+            Debug.Log("FailedToSpawnPlayer");   
+            SpawnPlayer();
         }
     }
 
@@ -67,5 +77,30 @@ public class GameManager : MonoBehaviour
         {
             Destroy(ghost);
         }
+    }
+
+    public void UIDeadPlayer()
+    {
+        if (!hasStartedRespawn) {
+            StartCoroutine(UIDeadPlayerCoroutine());
+        }
+        
+    }
+
+    IEnumerator UIDeadPlayerCoroutine()
+    {
+        hasStartedRespawn = true;
+        diedCanvas.SetActive(true);
+        diedText.text = "You Died!";
+
+        yield return new WaitForSeconds(5f);
+        diedText.text = "Respawn in progress...";
+
+        yield return new WaitForSeconds(5f);
+        diedText.text = "Player Has respawn!";
+
+        yield return new WaitForSeconds(1f);
+
+        diedCanvas.SetActive(false);
     }
 }

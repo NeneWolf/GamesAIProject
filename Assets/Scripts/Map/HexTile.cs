@@ -79,7 +79,39 @@ public class HexTile : MonoBehaviour
 
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            hasObjects = true;
+            hasPlayer = true;
+        }
+        else if (other.gameObject.tag == "Enemy")
+        {
+            enemy = other.gameObject.GetComponentInParent<EnemyStateMachine>().gameObject;
+            hasObjects = true;
+            hasEnemy = true;
+        }
+    }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            hasObjects = false;
+            hasPlayer = false;
+        }
+        else if (other.gameObject.tag == "Enemy")
+        {
+            enemy = null;
+            hasObjects = false;
+            hasEnemy = false;
+        }
+        else if (other.gameObject.tag == "Village" || other.gameObject.tag == "PlayerCastle")
+        {
+            hasObjects = false;
+        }
+    }
     //private void OnCollisionEnter(Collision collision)
     //{
     //    if (collision.gameObject.tag == "Player")

@@ -36,6 +36,9 @@ public class DetailMovement : MonoBehaviour
     List<HexTile> analised = new List<HexTile>();
     List<HexTile> notanalised = new List<HexTile>();
 
+    bool playerHasDied;
+    bool playerCastle;
+
     private void Awake()
     {
         parentObject = GameObject.FindAnyObjectByType<MapGenerator>().ReturnTileParent();
@@ -47,6 +50,11 @@ public class DetailMovement : MonoBehaviour
 
         currentTile = parentObject.GetComponent<HexTile>();
         currentHealth = maxhealth;
+
+        if(this.gameObject.tag == "PlayerCastle")
+        {
+            playerCastle = true;
+        }
         
     }
 
@@ -58,22 +66,31 @@ public class DetailMovement : MonoBehaviour
 
     private void Update()
     {
-        if(player != null)
+        if (!isDestroyed)
         {
-            targetTile = player.GetComponent<PlayerMovement>().currentTile;
-
-            if (displayPath &&
-                gameManager.hasGameStarted &&
-                targetTile != previousTargetTile)
+            if (player != null)
             {
-                CheckForPathFinder();
+                targetTile = player.GetComponent<PlayerMovement>().currentTile;
+
+                if (displayPath &&
+                    gameManager.hasGameStarted &&
+                    targetTile != previousTargetTile)
+                {
+                    CheckForPathFinder();
+                }
+            }
+            else
+            {
+                if (gameManager.hasGameStarted && !playerHasDied)
+                    player = GameObject.FindAnyObjectByType<PlayerMovement>().gameObject;
+                else if (playerHasDied)
+                {
+                    gameManager.SpawnPlayer();
+                    playerHasDied = false;
+                }
             }
         }
-        else
-        {
-            if (gameManager.hasGameStarted)
-                player = GameObject.FindAnyObjectByType<PlayerMovement>().gameObject;
-        }           
+          
     }
 
     public void UpdatePosition()
@@ -115,7 +132,6 @@ public class DetailMovement : MonoBehaviour
     {
         return isDestroyed;
     }
-
 
     void CheckForPathFinder()
     {
@@ -173,5 +189,12 @@ public class DetailMovement : MonoBehaviour
             }
         }
     }
+
+    public void ReportPlayerDead()
+    {
+        playerHasDied = true;
+    }
+
+
 
 }

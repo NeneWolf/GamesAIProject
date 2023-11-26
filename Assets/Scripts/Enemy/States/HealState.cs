@@ -17,8 +17,11 @@ internal class HealState : BaseState<EnemyStateMachine.EEnemyState>
     public override void EnterState()
     {
         hasBeenHealed = false;
+        enemyStateMachine.target = null;
+        enemyStateMachine.isBeingAttacked = false;
+        enemyStateMachine.canSeeTarget = false;
 
-        if(!enemyStateMachine.target.CompareTag("Heal"))
+        if (enemyStateMachine.target == null)
         {
             enemyStateMachine.FindTheNearestHealingTile();
         }
@@ -37,9 +40,8 @@ internal class HealState : BaseState<EnemyStateMachine.EEnemyState>
 
     public override EnemyStateMachine.EEnemyState GetNextState()
     {
-        if(hasBeenHealed || !hasBeenHealed && !enemyStateMachine.isThereHealing)
+        if(hasBeenHealed || !enemyStateMachine.isThereHealing)
         {
-            enemyStateMachine.target = null;
             return EnemyStateMachine.EEnemyState.Patrol;
         }
         else if (enemyStateMachine.reportIsDead())
@@ -71,7 +73,7 @@ internal class HealState : BaseState<EnemyStateMachine.EEnemyState>
     public override void UpdateState()
     {
         Debug.Log("Heal State");
-        if (!enemyStateMachine.target.CompareTag("Heal"))
+        if (enemyStateMachine.target.tag == "Player")
         {
             enemyStateMachine.FindTheNearestHealingTile();
         }

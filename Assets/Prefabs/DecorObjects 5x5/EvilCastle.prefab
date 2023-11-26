@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 65029581028723634}
   - component: {fileID: -4465559624117981788}
   - component: {fileID: 1704650048957746988}
+  - component: {fileID: 5925759155094284021}
   m_Layer: 0
   m_Name: EvilCastle
   m_TagString: EnemySpawnCastle
@@ -125,8 +126,8 @@ MonoBehaviour:
   currentTile: {fileID: 0}
   isDestroyed: 0
   displayPath: 0
-  target: {fileID: 0}
-  path: []
+  targetTile: {fileID: 0}
+  previousTargetTile: {fileID: 0}
 --- !u!208 &1704650048957746988
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -143,3 +144,21 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.652, z: -0.032}
   m_TimeToStationary: 0.5
+--- !u!114 &5925759155094284021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1970677826219172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 940b5a58e31b7cb4f9215e25643e213c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemies:
+  - {fileID: 4038078222228396643, guid: 120fab798fa0915428bcec8c0d78b7d8, type: 3}
+  - {fileID: 4038078222228396643, guid: e6559639e69259249a0de07c46d76b84, type: 3}
+  initialSpawningTimer: 15
+  timerBetweenEnemies: 20
+  freeTiles: []

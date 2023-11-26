@@ -109,7 +109,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1e8f904367271445977cfe7a520486a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemy: {fileID: 4038078222228396643}
 --- !u!65 &8821339855069902074
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -889,7 +888,7 @@ Transform:
   m_GameObject: {fileID: 4038078222228396643}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 169.72, y: 0, z: 127.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6274188, y: 0.6274188, z: 0.6274188}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -962,6 +961,7 @@ MonoBehaviour:
   maxHealth: 50
   currentHealth: 0
   damage: 10
+  critChance: 0
   speed: 5
   attackRange: 2
   chaseRange: 5
@@ -1035,7 +1035,7 @@ SphereCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 260
+    m_Bits: 375
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -1051,7 +1051,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4038078222228396643}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1068,7 +1068,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!1 &4262409378534005170
 GameObject:

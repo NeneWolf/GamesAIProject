@@ -68,7 +68,6 @@ public class DropBehaviour : MonoBehaviour
         }
 
 
-
         if (sphereCollider.enabled && gameManager.hasGameStarted)
         {
             target = GameObject.FindAnyObjectByType<PlayerMovement>().currentTile;

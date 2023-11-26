@@ -82,11 +82,11 @@ public class PathFinder : MonoBehaviour
                     node.baseCost = 9999;
                     //continue;
                 }
-                else if (tile.heightWeight >= 0.768f && tile.heightWeight <= 0.9f) // Avoid "higher" areas
+                else if (tile.heightWeight > 0.8f) // Avoid "higher" areas
                 {
-                    node.baseCost = 500;
+                    node.baseCost = 2000;
                 }
-                else if (tile.heightWeight >= 0.2f && tile.heightWeight <= 0.65f)
+                else if (tile.heightWeight <= 0.5f)
                 {
                     node.baseCost = 0;
                 }
