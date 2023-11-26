@@ -123,6 +123,22 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         Blue
     }
 
+    void AddStates()
+    {
+        // Initialize your enemy states and add them to the 'states' dictionary
+        states.Add(EEnemyState.Idle, new IdleState(this, waiting));
+        states.Add(EEnemyState.Patrol, new PatrolState(this, navMeshAgent));
+        states.Add(EEnemyState.Heal, new HealState(this, navMeshAgent));
+        states.Add(EEnemyState.Chase, new ChaseState(this, navMeshAgent));
+        states.Add(EEnemyState.AttackMelee, new AttackMelee(this, navMeshAgent));
+        states.Add(EEnemyState.AttackRanged, new AttackRanged(this));
+        states.Add(EEnemyState.Dead, new DeadState(this, waiting));
+
+        // Set the initial state
+        currentState = states[EEnemyState.Idle];
+        currentState.EnterState();
+    }
+
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -205,8 +221,13 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
             if (isBeingAttacked && !canSeeTarget && currentState.stateKey != EEnemyState.Heal)
             {
+                if(player == null)
+                {
+                    player = GameObject.FindGameObjectWithTag("Player");
+                }
+
                 target = player;
-                TransitionState(EEnemyState.Chase);
+                TransitionState(EEnemyState.AttackMelee);
             }
 
             if(currentHealth < maxHealth / 2 && !isThereHealing && !hasCalledForHelp && enemyType == EEnemyType.Red)
@@ -221,22 +242,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             health.text = "Enemy Dead";
         }
 
-    }
-
-    void AddStates()
-    {
-        // Initialize your enemy states and add them to the 'states' dictionary
-        states.Add(EEnemyState.Idle, new IdleState(this,waiting));
-        states.Add(EEnemyState.Patrol, new PatrolState(this, navMeshAgent));
-        states.Add(EEnemyState.Heal, new HealState(this, navMeshAgent));
-        states.Add(EEnemyState.Chase, new ChaseState(this,navMeshAgent));
-        states.Add(EEnemyState.AttackMelee, new AttackMelee(this, navMeshAgent));
-        states.Add(EEnemyState.AttackRanged, new AttackRanged(this));
-        states.Add(EEnemyState.Dead, new DeadState(this, waiting));
-
-        // Set the initial state
-        currentState = states[EEnemyState.Idle];
-        currentState.EnterState();
     }
 
     public void FieldOfViewCheckForTargets()
@@ -394,6 +399,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     {
         StartCoroutine(Wait(time));
     }
+
     IEnumerator Wait(int amount)
     {
         waiting = true;
@@ -430,6 +436,29 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             currentTile = currentPath[0];
 
             nextTile = currentPath[1];
+
+            if(nextTile.hasObjects && currentTile != nextTile)
+            {
+                path.Clear();
+                currentPath.Clear();
+                gotPath = false;
+
+                path = PathFinder.FindPath(currentTile, targetTile, false);
+
+                if (path != null)
+                {
+                    analised = pathFinder.GetTileListAnalised();
+                    notanalised = pathFinder.GetTileListNotAnalised();
+                    currentPath = path;
+
+                    gotPath = true;
+                    SetAgentPath(path);
+                    HandleEnemyMovement();
+
+                    return;
+                }
+                else return;
+            }
 
             if (currentTile != null && nextTile != null)
             {
@@ -477,7 +506,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
             path = PathFinder.FindPath(currentTile, targetTile, false);
             
-
             this.movingToAttack = movingToAttack;
 
             if(movingToAttack)

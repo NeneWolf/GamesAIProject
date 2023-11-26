@@ -26,6 +26,10 @@ public class PlayerMovement : MonoBehaviour
     public float movementSpeed = 2.0f;
     bool isDead = false;
 
+    [Header("Shooting")]
+    [SerializeField] GameObject bullet;
+    [SerializeField] Transform bulletSpawnPoint;
+
     [Header("Pathfinding")]
     RaycastHit m_HitInfo = new RaycastHit();
     public HexTile target;
@@ -147,17 +151,19 @@ public class PlayerMovement : MonoBehaviour
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
                 path = PathFinder.FindPath(currentTile, target,false);
+                
+                if(path != null)
+                {
+                    analised = pathFinder.GetTileListAnalised();
+                    notanalised = pathFinder.GetTileListNotAnalised();
 
+                    movingToEnemy = false;
+                    isAttacking = false;
 
-                analised = pathFinder.GetTileListAnalised();
-                notanalised = pathFinder.GetTileListNotAnalised();
-
-                movingToEnemy = false;
-                isAttacking = false;
-
-                currentPath = path;
-                gotPath = true;
-                SetAgentPath(path);
+                    currentPath = path;
+                    gotPath = true;
+                    SetAgentPath(path);
+                }
             }
             else if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && 
                 m_HitInfo.collider.GetComponent<HexTile>().hasEnemy && 
@@ -175,16 +181,20 @@ public class PlayerMovement : MonoBehaviour
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
                 path = PathFinder.FindPath(currentTile, target, false);
-                path.RemoveAt(path.Count - 1);
+                
+                if(path != null)
+                {
+                    path.RemoveAt(path.Count - 1);
 
-                analised = pathFinder.GetTileListAnalised();
-                notanalised = pathFinder.GetTileListNotAnalised();
+                    analised = pathFinder.GetTileListAnalised();
+                    notanalised = pathFinder.GetTileListNotAnalised();
 
-                movingToEnemy = true;
+                    movingToEnemy = true;
 
-                currentPath = path;
-                gotPath = true;
-                SetAgentPath(path);
+                    currentPath = path;
+                    gotPath = true;
+                    SetAgentPath(path);
+                }
             }
             else return;
         }
@@ -244,18 +254,19 @@ public class PlayerMovement : MonoBehaviour
 
                 path = PathFinder.FindPath(currentTile, target, false);
 
-                analised = pathFinder.GetTileListAnalised();
-                notanalised = pathFinder.GetTileListNotAnalised();
+                if (path != null)
+                {
+                    analised = pathFinder.GetTileListAnalised();
+                    notanalised = pathFinder.GetTileListNotAnalised();
+                    currentPath = path;
 
-                movingToEnemy = false;
-                isAttacking = false;
+                    gotPath = true;
+                    SetAgentPath(path);
+                    HandleMovement();
 
-                currentPath = path;
-                if(path != null) { gotPath = true; }
-                SetAgentPath(path);
-
-                HandleMovement();
-                return;
+                    return;
+                }
+                else return;
             }
 
             if (currentTile != null && nextTile != null)
@@ -288,6 +299,7 @@ public class PlayerMovement : MonoBehaviour
         RotateToEnemy();
         isAttacking = true;
         animator.SetBool("isAttacking", true);
+
     }
 
     void RotateToEnemy()
@@ -337,7 +349,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (enemy != null && !enemy.GetComponent<EnemyStateMachine>().reportIsDead())
         {
-            enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
+            //enemy.GetComponent<EnemyStateMachine>().TakeDamage(attack);
+
+            GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+            bulletClone.GetComponent<PlayerBulletB>().SetDamage(attack);
         }
         else return;
     }
@@ -377,14 +392,6 @@ public class PlayerMovement : MonoBehaviour
         health += value;
     }
 
-    //public void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.tag == "Heal")
-    //    {
-    //        collision.gameObject.GetComponent<DropBehaviour>().RetrieveValue();
-    //    }
-    //}
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == 6)
@@ -408,15 +415,6 @@ public class PlayerMovement : MonoBehaviour
             other.gameObject.GetComponent<HexTile>().hasPlayer = false;
         }
     }
-
-    //private void OnTriggerStay(Collider other)
-    //{
-    //    if (other.gameObject.layer == 6)
-    //    {
-    //        other.gameObject.GetComponent<HexTile>().hasObjects = true;
-    //        other.gameObject.GetComponent<HexTile>().hasPlayer = true;
-    //    }
-    //}
 
     private void OnDrawGizmos()
     {
