@@ -13,6 +13,7 @@ public class Node
     public int costToDestination;
     public int pathCost;
 
+
     public Node (HexTile current, HexTile origin, HexTile destination, int pathCost)
     {
         parent = null;
@@ -20,7 +21,6 @@ public class Node
         this.target = current;
         this.origin = origin;
         this.destination = destination;
-
 
         this.baseCost = 1;
         this.costFromOrigin = (int)Vector3.Distance(current.position, origin.position);

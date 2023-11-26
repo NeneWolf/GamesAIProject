@@ -560,7 +560,7 @@ GameObject:
   m_Component:
   - component: {fileID: 209183518432297703}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: spawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -575,7 +575,7 @@ Transform:
   m_GameObject: {fileID: 2528283480393745174}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.85, z: 2.681}
+  m_LocalPosition: {x: 0, y: 1.28, z: 2.681}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -972,8 +972,8 @@ MonoBehaviour:
   isPlayerAlive: 1
   target: {fileID: 0}
   patrolRadius: 10
-  bullet: {fileID: 0}
-  bulletSpawnPoint: {fileID: 0}
+  bullet: {fileID: 2393241839040781934, guid: a93c6ba1a04e6ae40a149bcaaf7bfc96, type: 3}
+  bulletSpawnPoint: {fileID: 209183518432297703}
   canSeeTarget: 0
   whatIsTargetMask:
     serializedVersion: 2

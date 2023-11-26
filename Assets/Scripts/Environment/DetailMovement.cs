@@ -23,8 +23,14 @@ public class DetailMovement : MonoBehaviour
 
     [Header("Path Finding for Ghost player")]
     GameObject ghostPlayer;
+    GameObject player;
     public bool displayPath;
-    public HexTile target;
+
+    public HexTile targetTile;
+    public HexTile previousTargetTile;
+
+    bool hasReplacedTargetTile;
+    bool hasCleanedArea;
 
     List<HexTile> path;
     List<HexTile> analised = new List<HexTile>();
@@ -37,7 +43,7 @@ public class DetailMovement : MonoBehaviour
         gameManager = GameObject.FindAnyObjectByType<GameManager>();
         pathFinder = GameObject.FindAnyObjectByType<PathFinder>();
 
-        target = GameObject.FindAnyObjectByType<GhostPlayerB>().currentTile;
+        targetTile = GameObject.FindAnyObjectByType<GhostPlayerB>().currentTile;
 
         currentTile = parentObject.GetComponent<HexTile>();
         currentHealth = maxhealth;
@@ -52,12 +58,22 @@ public class DetailMovement : MonoBehaviour
 
     private void Update()
     {
-        if (gameManager.hasGameStarted) { 
-            target = GameObject.FindAnyObjectByType<PlayerMovement>().currentTile;
+        if(player != null)
+        {
+            targetTile = player.GetComponent<PlayerMovement>().currentTile;
 
-            if (displayPath)
+            if (displayPath &&
+                gameManager.hasGameStarted &&
+                targetTile != previousTargetTile)
+            {
                 CheckForPathFinder();
+            }
         }
+        else
+        {
+            if (gameManager.hasGameStarted)
+                player = GameObject.FindAnyObjectByType<PlayerMovement>().gameObject;
+        }           
     }
 
     public void UpdatePosition()
@@ -104,13 +120,15 @@ public class DetailMovement : MonoBehaviour
     void CheckForPathFinder()
     {
         if (!gameManager.hasGameStarted)
-            path = PathFinder.FindPath(currentTile, target, true);
-        else path = PathFinder.FindPath(currentTile, target, false);
+            path = PathFinder.FindPath(currentTile, targetTile, true);
+        else path = PathFinder.FindPath(currentTile, targetTile, false);
+
+        previousTargetTile = targetTile;
 
         analised = pathFinder.GetTileListAnalised();
         notanalised = pathFinder.GetTileListNotAnalised();
 
-        if(ImportantBuilding && !gameManager.hasGameStarted)
+        if(ImportantBuilding && !hasCleanedArea && !gameManager.hasGameStarted)
         {
             foreach (HexTile tile in path)
             {
@@ -120,8 +138,15 @@ public class DetailMovement : MonoBehaviour
                     tile.hasObjects = false;
                 }
             }
+
+            hasCleanedArea = true;
         }
 
+    }
+
+    public bool ReportImportancy()
+    {
+        return ImportantBuilding;
     }
 
     private void OnDrawGizmos()

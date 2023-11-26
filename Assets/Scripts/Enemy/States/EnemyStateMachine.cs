@@ -151,10 +151,10 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         // Initialize the villages array
         villages = GameObject.FindGameObjectsWithTag("Village");
 
-        // Initialize the target castle
+        // Initialize the targetTile castle
         playerCastle = GameObject.FindGameObjectWithTag("PlayerCastle");
 
-        // Initialize the target
+        // Initialize the targetTile
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -575,7 +575,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     public void HandleAttackMeleeTarget()
     {
-        if (isPlayerInReachToAttack && enemyType ==EEnemyType.Red)
+        if (isPlayerInReachToAttack && enemyType == EEnemyType.Red)
         {
             if (target.CompareTag("Player"))
             {
@@ -588,7 +588,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
         else if(isPlayerInReachToAttack && enemyType == EEnemyType.Blue)
         {
-            GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.position, Quaternion.identity);
+            GameObject bulletClone = Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
             bulletClone.GetComponent<EnemyBulletBehaviour>().SetDamage(damage);
         }
     }

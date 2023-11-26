@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class HexTile : MonoBehaviour
 {
+    GameManager gameManager;
+
     public Vector3 position;
     public Vector3 collisionMesh;
     public Vector3 scale;
@@ -35,6 +37,11 @@ public class HexTile : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        gameManager = GameObject.FindFirstObjectByType<GameManager>();
+    }
+
     private void Update()
     {
         if (hasBeenRequestedToClearNeightbours && neighbours != null)
@@ -58,14 +65,18 @@ public class HexTile : MonoBehaviour
 
     void DestroyNeighboursDecor()
     {
-        foreach (HexTile neighbour in neighbours)
+        if (!gameManager.hasGameStarted) 
         {
-            if (neighbour.hasObjects && !isImportantBuilding)
+            foreach (HexTile neighbour in neighbours)
             {
-                DestroyImmediate(neighbour.GetComponent<HexTile>().DecorInHexigon);
-                neighbour.hasObjects = false;
+                if (neighbour.hasObjects && !neighbour.DecorInHexigon.GetComponent<DetailMovement>().ReportImportancy())
+                {
+                    DestroyImmediate(neighbour.GetComponent<HexTile>().DecorInHexigon);
+                    neighbour.hasObjects = false;
+                }
             }
         }
+
     }
 
 

@@ -80,12 +80,7 @@ public class PlayerMovement : MonoBehaviour
         {
             HandleFindPath();
 
-            if (gotPath)
-            {
-                HandleMovement();
-
-                //TestingMovement();
-            }
+            if (gotPath){ HandleMovement();}
 
             //animator
             if (m_Agent.velocity.magnitude > 0.1f)
@@ -136,7 +131,9 @@ public class PlayerMovement : MonoBehaviour
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && !m_HitInfo.collider.GetComponent<HexTile>().hasObjects)
+            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && 
+                !m_HitInfo.collider.GetComponent<HexTile>().hasObjects && 
+                m_HitInfo.collider.GetComponent<HexTile>().heightWeight <= 0.8f)
             {
                 m_Agent.speed = movementSpeed;
                 
@@ -145,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
                     m_Agent.isStopped = false;
                 }
 
-                // Get the tile target
+                // Get the tile targetTile
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
@@ -162,7 +159,9 @@ public class PlayerMovement : MonoBehaviour
                 gotPath = true;
                 SetAgentPath(path);
             }
-            else if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && m_HitInfo.collider.GetComponent<HexTile>().hasEnemy)
+            else if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo, Mathf.Infinity, hexTileLayer) && 
+                m_HitInfo.collider.GetComponent<HexTile>().hasEnemy && 
+                m_HitInfo.collider.GetComponent<HexTile>().heightWeight <= 0.8f)
             {
                 m_Agent.speed = movementSpeed;
 
@@ -171,7 +170,7 @@ public class PlayerMovement : MonoBehaviour
                     m_Agent.isStopped = false;
                 }
 
-                // Get the tile target
+                // Get the tile targetTile
                 m_HitInfo.collider.gameObject.GetComponent<HexTile>().OnSelectTile();
                 target = m_HitInfo.collider.gameObject.GetComponent<HexTile>();
 
@@ -191,19 +190,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void TestingMovement()
-    {
-        // Get tile from mouse click
-        if (Input.GetMouseButtonDown(0))
-        {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    //void TestingMovement()
+    //{
+    //    // Get tile from mouse click
+    //    if (Input.GetMouseButtonDown(0))
+    //    {
+    //        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
-            {
-                m_Agent.SetDestination(m_HitInfo.point);
-            }
-        }
-    }
+    //        if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
+    //        {
+    //            m_Agent.SetDestination(m_HitInfo.point);
+    //        }
+    //    }
+    //}
 
     void HandleMovement()
     {
@@ -237,19 +236,27 @@ public class PlayerMovement : MonoBehaviour
 
             nextTile = currentPath[1];
 
-            //if (nextTile.hasObjects)
-            //{
-            //    currentPath.Clear();
-            //    gotPath = false;
-            //    path.Clear();
-            //    FindPathToDestination(currentTile, target);
-            //    HandleMovement();
-            //    return;
-            //}
-            //else
-            //{
+            if (nextTile.hasObjects && !nextTile.hasPlayer)
+            {
+                path.Clear();
+                currentPath.Clear();
+                gotPath = false;
 
-            //SetAgentPath(path);
+                path = PathFinder.FindPath(currentTile, target, false);
+
+                analised = pathFinder.GetTileListAnalised();
+                notanalised = pathFinder.GetTileListNotAnalised();
+
+                movingToEnemy = false;
+                isAttacking = false;
+
+                currentPath = path;
+                if(path != null) { gotPath = true; }
+                SetAgentPath(path);
+
+                HandleMovement();
+                return;
+            }
 
             if (currentTile != null && nextTile != null)
             {
@@ -307,20 +314,16 @@ public class PlayerMovement : MonoBehaviour
         renderer.SetPositions(positions.ToArray());
     }
 
-    void FindPathToDestination(HexTile current, HexTile destination)
-    {
-        path = PathFinder.FindPath(currentTile, destination, false);
-        currentPath = path;
-        gotPath = true;
-    }
+    //void FindPathToDestination(HexTile current, HexTile destination)
+    //{
+    //    path = PathFinder.FindPath(currentTile, destination, false);
+    //    currentPath = path;
+    //    gotPath = true;
+    //}
 
     void SetAgentPath(List<HexTile> path)
     {
-        if (path == null || path.Count == 0)
-        {
-            Debug.Log("Path is null or empty");
-            return;
-        }
+        if (path == null || path.Count == 0){return;}
 
         m_Agent.CalculatePath(path[path.Count - 1].position, navMeshPath);
 
@@ -374,20 +377,26 @@ public class PlayerMovement : MonoBehaviour
         health += value;
     }
 
-    public void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Heal")
-        {
-            collision.gameObject.GetComponent<DropBehaviour>().RetrieveValue();
-        }
-    }
+    //public void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.tag == "Heal")
+    //    {
+    //        collision.gameObject.GetComponent<DropBehaviour>().RetrieveValue();
+    //    }
+    //}
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == 6)
         {
-            other.gameObject.GetComponent<HexTile>().hasObjects = true;
-            other.gameObject.GetComponent<HexTile>().hasPlayer = true;
+            float xDifference = this.transform.position.x - other.GetComponent<HexTile>().position.x;
+            float ZDifference = this.transform.position.z - other.GetComponent<HexTile>().position.z;
+
+            if(xDifference < 0.06f && ZDifference < 0.06f)
+            {
+                other.gameObject.GetComponent<HexTile>().hasObjects = true;
+                other.gameObject.GetComponent<HexTile>().hasPlayer = true;
+            }
         }
     }
 
@@ -400,14 +409,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject.layer == 6)
-        {
-            other.gameObject.GetComponent<HexTile>().hasObjects = true;
-            other.gameObject.GetComponent<HexTile>().hasPlayer = true;
-        }
-    }
+    //private void OnTriggerStay(Collider other)
+    //{
+    //    if (other.gameObject.layer == 6)
+    //    {
+    //        other.gameObject.GetComponent<HexTile>().hasObjects = true;
+    //        other.gameObject.GetComponent<HexTile>().hasPlayer = true;
+    //    }
+    //}
 
     private void OnDrawGizmos()
     {

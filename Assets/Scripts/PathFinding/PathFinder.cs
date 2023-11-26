@@ -82,6 +82,15 @@ public class PathFinder : MonoBehaviour
                     node.baseCost = 9999;
                     //continue;
                 }
+                else if (tile.heightWeight >= 0.768f && tile.heightWeight <= 0.9f) // Avoid "higher" areas
+                {
+                    node.baseCost = 500;
+                }
+                else if (tile.heightWeight >= 0.2f && tile.heightWeight <= 0.65f)
+                {
+                    node.baseCost = 0;
+                }
+
             }
 
             neightbours.Add(node);

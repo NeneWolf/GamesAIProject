@@ -7,34 +7,34 @@ public class EnemyBulletBehaviour : MonoBehaviour
     int damage;
     [SerializeField] float speed = 5f;
 
-    [SerializeField] LayerMask whatIsTarget;
-
     public void SetDamage(int damage)
     {
         this.damage = damage;
+    }
+    private void Start()
+    {
+        Destroy(this.gameObject, 10f);    
     }
 
     void Update()
     {
         if(damage!= 0)
         {
-            transform.Translate(Vector3.up * speed * Time.deltaTime);
+            transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collision)
     {
-        if(collision.gameObject.layer == whatIsTarget)
+        if (collision.gameObject.tag == "Player")
         {
-            if(collision.gameObject.CompareTag("Player"))
-            {
-                collision.gameObject.GetComponent<PlayerMovement>().TakeDamage(damage);
-            }
-            else
-            {
-                collision.gameObject.GetComponent<DetailMovement>().TakeDamage(damage);
-            }
-
+            Debug.Log("Player Hit");
+            collision.gameObject.GetComponent<PlayerMovement>().TakeDamage(damage);
+            Destroy(gameObject);
+        }
+        else if (collision.gameObject.tag == "Village" || collision.gameObject.tag == "PlayerCastle")
+        {
+            collision.gameObject.GetComponent<DetailMovement>().TakeDamage(damage);
             Destroy(gameObject);
         }
         else if(collision.gameObject.layer == 6)

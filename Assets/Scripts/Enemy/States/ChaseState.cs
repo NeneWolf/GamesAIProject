@@ -61,7 +61,7 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
         //if (other.gameObject.CompareTag("Player"))
         //{
         //    targetLeftAreaOfChase = true;
-        //    enemyStateMachine.target = other.gameObject;
+        //    enemyStateMachine.targetTile = other.gameObject;
         //    enemyStateMachine.canSeeTarget = true;
         //}
         //else return;
@@ -83,7 +83,7 @@ internal class ChaseState : BaseState<EnemyStateMachine.EEnemyState>
         //if (other.gameObject.CompareTag("Player"))
         //{
         //    targetLeftAreaOfChase = true;
-        //    enemyStateMachine.target = other.gameObject;
+        //    enemyStateMachine.targetTile = other.gameObject;
         //}
         //else return;
     }

@@ -7,6 +7,7 @@ public class DropBehaviour : MonoBehaviour
 {
     GameManager gameManager;
     PathFinder pathFinder;
+    DropsSpawnManager dropsSpawnManager;
 
     string tag;
     HexTile tile;
@@ -34,6 +35,7 @@ public class DropBehaviour : MonoBehaviour
     {
         gameManager = GameObject.FindAnyObjectByType<GameManager>();
         pathFinder = GameObject.FindAnyObjectByType<PathFinder>();
+        dropsSpawnManager = GameObject.FindAnyObjectByType<DropsSpawnManager>();
 
         tag = gameObject.tag;
         halfHeight = this.transform.lossyScale.y * 0.5f;
@@ -108,16 +110,14 @@ public class DropBehaviour : MonoBehaviour
             {
                 other.gameObject.GetComponent<PlayerMovement>().IncreaseMaxHealth(increaseMaxHealth);
             }
-            
-            Destroy(this.gameObject);
+
+            OnDestroyDrop();
         }
         else if (other.gameObject.CompareTag("Enemy"))
         {
             other.gameObject.GetComponent<EnemyStateMachine>().Heal(healAmount);
-            Destroy(this.gameObject);
+            OnDestroyDrop();
         }
-
-        
     }
 
     public HexTile ReportTile()
@@ -156,5 +156,11 @@ public class DropBehaviour : MonoBehaviour
                 Gizmos.DrawSphere(tile.position, 1f);
             }
         }
+    }
+
+    void OnDestroyDrop()
+    {
+        dropsSpawnManager.DropDestroyed();
+        Destroy(this.gameObject);
     }
 }

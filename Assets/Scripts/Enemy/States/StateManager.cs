@@ -14,7 +14,6 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
 
     public void TransitionState(EState key)
     {
-        Debug.Log($"Transitioning to state: {key}");
         if (isTransitioningState) return; // Avoid entering a new state while transitioning
 
         isTransitioningState = true;
