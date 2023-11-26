@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -23,13 +24,13 @@ public class DetailMovement : MonoBehaviour
 
     [Header("Path Finding for Ghost player")]
     GameObject ghostPlayer;
-    GameObject player;
+    public GameObject player;
     public bool displayPath;
 
     public HexTile targetTile;
     public HexTile previousTargetTile;
 
-    bool hasReplacedTargetTile;
+    bool firstCheck;
     bool hasCleanedArea;
 
     List<HexTile> path;
@@ -37,7 +38,7 @@ public class DetailMovement : MonoBehaviour
     List<HexTile> notanalised = new List<HexTile>();
 
     bool playerHasDied;
-    bool playerCastle;
+    public bool playerCastle;
 
     private void Awake()
     {
@@ -68,25 +69,46 @@ public class DetailMovement : MonoBehaviour
     {
         if (!isDestroyed)
         {
-            if (player != null)
+            if (!gameManager.hasGameStarted && !firstCheck)
             {
-                targetTile = player.GetComponent<PlayerMovement>().currentTile;
-
-                if (displayPath &&
-                    gameManager.hasGameStarted &&
-                    targetTile != previousTargetTile)
-                {
-                    CheckForPathFinder();
-                }
+                player = ghostPlayer;
+                targetTile = player.GetComponent<GhostPlayerB>().currentTile;
+                CheckForPathFinder();
+                firstCheck = true;
             }
-            else
+            else if(gameManager.hasGameStarted)
             {
-                if (gameManager.hasGameStarted && !playerHasDied)
-                    player = GameObject.FindAnyObjectByType<PlayerMovement>().gameObject;
-                else if (playerHasDied)
+                player = FindFirstObjectByType<PlayerMovement>() ? FindFirstObjectByType<PlayerMovement>().gameObject : null;
+
+
+                if (player != null)
                 {
-                    gameManager.SpawnPlayer();
-                    playerHasDied = false;
+                    targetTile = player.GetComponent<PlayerMovement>().currentTile;
+
+                    if (displayPath &&
+                        gameManager.hasGameStarted &&
+                        targetTile != previousTargetTile)
+                    {
+                        CheckForPathFinder();
+                    }
+                }
+                else
+                {
+                    player = FindFirstObjectByType<PlayerMovement>() ? FindFirstObjectByType<PlayerMovement>().gameObject : null;
+
+                    if (player != null)
+                    {
+                        targetTile = player.GetComponent<PlayerMovement>().currentTile;
+
+                        if (displayPath && targetTile != previousTargetTile)
+                        {
+                            CheckForPathFinder();
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("No player found yet;");
+                    }
                 }
             }
         }
@@ -192,9 +214,6 @@ public class DetailMovement : MonoBehaviour
 
     public void ReportPlayerDead()
     {
-        playerHasDied = true;
+        gameManager.SpawnPlayer();
     }
-
-
-
 }

@@ -430,13 +430,14 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(10f);
 
-        DetailMovement detailMovement = GameObject.FindAnyObjectByType<DetailMovement>();
+        GameObject castle = GameObject.FindGameObjectWithTag("PlayerCastle");
 
-        if (detailMovement != null)
+        if (castle != null)
         {
-            detailMovement.ReportPlayerDead();
+            castle.GetComponent<DetailMovement>().ReportPlayerDead();
+            
         }
 
-        Destroy(gameObject);
+        Destroy(this.gameObject);
     }
 }
