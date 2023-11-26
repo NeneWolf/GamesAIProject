@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,9 +21,16 @@ public class GameManager : MonoBehaviour
     public bool hasGameStarted;
     bool hasStartedRespawn;
 
+    [SerializeField] GameObject backCanvas;
+
     private void Awake()
     {
         tileManager = FindFirstObjectByType<TileManager>();
+    }
+
+    private void Update()
+    {
+        if(hasGameStarted && !backCanvas.activeInHierarchy) { backCanvas.SetActive(true); }
     }
 
     public void StartGame(bool hasDecor)
@@ -102,5 +110,10 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         diedCanvas.SetActive(false);
+    }
+
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 }
