@@ -1,9 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
-using Unity.AI.Navigation;
-using UnityEditor.Playables;
 using UnityEngine;
-using UnityEngine.AI;
 
 
 public class MapGenerator : MonoBehaviour

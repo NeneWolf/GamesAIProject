@@ -29,12 +29,10 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Heal;
         }
-        //else if (enemyStateMachine.targetTile.CompareTag("Player") &&
-        //    enemyStateMachine.targetTile.GetComponent<PlayerMovement>().ReportIsDead() ||
-        //    (enemyStateMachine.targetTile.CompareTag("Village") || enemyStateMachine.targetTile.CompareTag("PlayerCastle")) && enemyStateMachine.targetTile.GetComponent<DetailMovement>().ReportStatus())
-        //{
-        //    return EnemyStateMachine.EEnemyState.Idle;
-        //}
+        else if (enemyStateMachine.CheckTargetHealth())
+        {
+            return EnemyStateMachine.EEnemyState.Idle;
+        }
         else if (!enemyStateMachine.isPlayerInReachToAttack)
         {
             return EnemyStateMachine.EEnemyState.Chase;

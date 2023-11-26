@@ -1,13 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Xml;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UI;
 
 public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 {
@@ -103,7 +98,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     //Pathfinding
     [Header("UI")]
-    [SerializeField] TextMeshProUGUI enemyID;
     [SerializeField] TextMeshProUGUI currentStateDisplay;
     [SerializeField] TextMeshProUGUI health;
 
@@ -715,6 +709,20 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     {
           spawnEnemies.EnemyKilled();
           Destroy(this.gameObject);
+    }
+
+    public bool CheckTargetHealth()
+    {
+        if(target.CompareTag("Player"))
+        {
+            return target.GetComponent<PlayerMovement>().ReportIsDead();
+        }
+        else if(target.CompareTag("Village") || target.CompareTag("PlayerCastle"))
+        {
+            return target.GetComponent<DetailMovement>().ReportStatus();
+        }
+
+        return false;
     }
 
 }
