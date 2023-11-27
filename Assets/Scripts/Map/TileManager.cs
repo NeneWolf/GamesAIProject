@@ -100,7 +100,7 @@ public class TileManager : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(tile.transform.position + new Vector3(0,50,0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
+        if (Physics.Raycast(tile.transform.position + new Vector3(0,20,0), Vector3.down, out hit, 100f) && hit.collider.gameObject.layer == 6)
         {
             highTile.transform.position = new Vector3(tile.position.x, hit.point.y, tile.position.z);
         }

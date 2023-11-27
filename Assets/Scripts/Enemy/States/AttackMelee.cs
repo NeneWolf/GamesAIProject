@@ -5,6 +5,7 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
 {
     EnemyStateMachine enemyStateMachine;
     NavMeshAgent agent;
+    bool targetHealth;
 
     public AttackMelee(EnemyStateMachine enemyStateMachine, NavMeshAgent agent) : base(EnemyStateMachine.EEnemyState.AttackMelee)
     {
@@ -15,6 +16,9 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
     public override void EnterState()
     {
         enemyStateMachine.RotateToTarget();
+        if(enemyStateMachine.target != null)
+            targetHealth = enemyStateMachine.CheckTargetHealth();
+
         enemyStateMachine.UpdateAnimator("isAttacking", true);
     }
 
@@ -29,11 +33,11 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
         {
             return EnemyStateMachine.EEnemyState.Heal;
         }
-        else if (enemyStateMachine.CheckTargetHealth())
+        else if (targetHealth)
         {
             return EnemyStateMachine.EEnemyState.Idle;
         }
-        else if (!enemyStateMachine.isPlayerInReachToAttack)
+        else if (!enemyStateMachine.isPlayerInReachToAttack && !targetHealth)
         {
             return EnemyStateMachine.EEnemyState.Chase;
         }
@@ -63,7 +67,10 @@ internal class AttackMelee : BaseState<EnemyStateMachine.EEnemyState>
     {
         enemyStateMachine.FindPlayer();
 
-        if(enemyStateMachine.isPlayerInReachToAttack)
+        if (enemyStateMachine.target != null)
+            targetHealth = enemyStateMachine.CheckTargetHealth();
+
+        if (enemyStateMachine.isPlayerInReachToAttack)
             enemyStateMachine.RotateToTarget();
     }
 }

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 65138886193921490}
   - component: {fileID: -2806753753982647435}
   - component: {fileID: -9039404386373947}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Castle
   m_TagString: PlayerCastle
   m_Icon: {fileID: 0}
@@ -124,9 +124,11 @@ MonoBehaviour:
   parentObject: {fileID: 0}
   currentTile: {fileID: 0}
   isDestroyed: 0
+  player: {fileID: 0}
   displayPath: 0
-  target: {fileID: 0}
-  path: []
+  targetTile: {fileID: 0}
+  previousTargetTile: {fileID: 0}
+  playerCastle: 0
 --- !u!208 &-9039404386373947
 NavMeshObstacle:
   m_ObjectHideFlags: 0

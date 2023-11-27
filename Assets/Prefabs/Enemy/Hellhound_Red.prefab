@@ -1064,7 +1064,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   damage: 5
-  critChance: 0
+  critChance: 0.2
   speed: 5
   attackRange: 2
   chaseRange: 5
@@ -1096,7 +1096,7 @@ MonoBehaviour:
   nextTile: {fileID: 0}
   hasReachedDestination: 0
   gotPath: 0
-  displayPath: 1
+  displayPath: 0
   isPlayerInReachToAttack: 0
   movingToAttack: 0
   currentStateDisplay: {fileID: 4449257367288568029}

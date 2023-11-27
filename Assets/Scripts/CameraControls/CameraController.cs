@@ -81,7 +81,7 @@ public class CameraController : MonoBehaviour
         //Track Mouse
         var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray,out m_HitInfo) && m_HitInfo.collider.gameObject.layer == 6)
+        if (Physics.Raycast(ray,out m_HitInfo,10000f) && m_HitInfo.collider.gameObject.layer == 6)
         {
             Transform objectHit = m_HitInfo.transform;
 
@@ -99,12 +99,14 @@ public class CameraController : MonoBehaviour
                 if (Physics.Raycast(ray, out m_HitInfo) && m_HitInfo.collider.gameObject.tag == "Enemy")
                 {
                     followTarget = true;
-                    followCamera.gameObject.SetActive(followTarget);
-                    freeLookCamera.gameObject.SetActive(!followTarget);
 
                     targetObject = m_HitInfo.collider.gameObject;
                     followCamera.GetComponent<CinemachineVirtualCamera>().Follow = targetObject.transform;
                     followCamera.GetComponent<CinemachineVirtualCamera>().LookAt = targetObject.transform;
+
+                    followCamera.gameObject.SetActive(followTarget);
+                    freeLookCamera.gameObject.SetActive(!followTarget);
+
                 }
             }
             else
