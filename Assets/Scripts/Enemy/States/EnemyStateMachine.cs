@@ -438,7 +438,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
             nextTile = currentPath[1];
 
-            if (targetTile.hasObjects && (targetTile.hasPlayer || (targetTile.hasEnemy && targetTile.enemy != this.gameObject)))
+            if (targetTile.hasObjects && !targetTile.hasPlayer && targetTile.enemy != this.gameObject)
             {
                 gotPath = false;
                 path.Clear();
@@ -447,7 +447,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
                 return;
             }
 
-            if (nextTile.hasObjects && currentTile != nextTile && nextTile.enemy != this.gameObject && !nextTile.hasPlayer)
+            if (nextTile.hasObjects && currentTile != nextTile && nextTile.enemy != this.gameObject)
             {
                 path.Clear();
                 currentPath.Clear();
