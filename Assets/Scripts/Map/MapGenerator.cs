@@ -77,6 +77,10 @@ public class MapGenerator : MonoBehaviour
     [HideInInspector]
     public bool hasGameStarted;
 
+
+    float timer;
+    float finalTimer;
+
     private void Awake()
     {
         fallOffMap = FallOffGenerator.GenerateFallOffMap(mapWidth, mapHeight);
@@ -94,9 +98,20 @@ public class MapGenerator : MonoBehaviour
         noiseMap = Noise.GenerateNoiseMap(mapWidth, mapHeight, seed, noiseScale, octaves, persistance, lacunarity, offset);
     }
 
+    void CheckPerformance(bool value)
+    {
+        if(value)
+            timer+= Time.deltaTime;
+        else if(!value)
+        {
+            finalTimer = timer;
+            Debug.Log("Seed: " + seed + "||" + "Fall Off: " + useFallOff + "||" + "Decoration: " + spawnDecor + "||" + "Time: " + timer);
+            timer = 0;
+        }
+    }
     public void GenerateMap()
     {
-        
+        CheckPerformance(true);
         GeneratePerlinNoise();
         MapDisplay display = FindAnyObjectByType<MapDisplay>();
 
@@ -277,6 +292,8 @@ public class MapGenerator : MonoBehaviour
 
         //Generate navmesh
         GenerateNavMesh();
+
+        CheckPerformance(false);
     }
 
     void SpawnMapDecoration(GameObject hexagonTile, int i)
