@@ -21,10 +21,13 @@ public class GameManager : MonoBehaviour
     public bool hasGameStarted;
     bool hasStartedRespawn;
 
+    MapGenerator mapGenerator;
+
     [SerializeField] GameObject backCanvas;
 
     private void Awake()
     {
+        mapGenerator = FindFirstObjectByType<MapGenerator>();
         tileManager = FindFirstObjectByType<TileManager>();
     }
 
@@ -35,23 +38,10 @@ public class GameManager : MonoBehaviour
 
     public void StartGame(bool hasDecor)
     {
-        hasGameStarted = true;
+        mapGenerator.spawnDecor = true;
+        mapGenerator.GenerateMap();
 
-        //Destroy GhostPlayer & Reset the tile information
-        DestroyGhost();
-
-
-        //Disable Menu
-        mainMenuCanvas.SetActive(false);
-
-        //Switch Cameras
-        InGameCamera.SetActive(true);
-        InMenuCamera.SetActive(false);
-
-        //In-game UI
-
-        //Spawn Player
-        SpawnPlayer();
+        StartCoroutine(StartGameCount());
     }
 
     public void SpawnPlayer()
@@ -85,6 +75,28 @@ public class GameManager : MonoBehaviour
         {
             Destroy(ghost);
         }
+    }
+
+    IEnumerator StartGameCount()
+    {
+        yield return new WaitForSeconds(2f);
+        hasGameStarted = true;
+
+        //Destroy GhostPlayer & Reset the tile information
+        DestroyGhost();
+
+
+        //Disable Menu
+        mainMenuCanvas.SetActive(false);
+
+        //Switch Cameras
+        InGameCamera.SetActive(true);
+        InMenuCamera.SetActive(false);
+
+        //In-game UI
+
+        //Spawn Player
+        SpawnPlayer();
     }
 
     public void UIDeadPlayer()
