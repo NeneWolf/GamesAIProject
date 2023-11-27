@@ -440,4 +440,23 @@ public class PlayerMovement : MonoBehaviour
 
         Destroy(this.gameObject);
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            other.gameObject.GetComponent<HexTile>().hasObjects = true;
+            other.gameObject.GetComponent<HexTile>().hasPlayer = true;
+
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer == 6)
+        {
+            other.gameObject.GetComponent<HexTile>().hasObjects = false;
+            other.gameObject.GetComponent<HexTile>().hasPlayer = false;
+        }
+    }
 }

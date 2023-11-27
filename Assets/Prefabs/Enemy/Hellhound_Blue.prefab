@@ -75,6 +75,7 @@ GameObject:
   - component: {fileID: 2200202549158626455}
   - component: {fileID: 6690410075262841260}
   - component: {fileID: 8821339855069902074}
+  - component: {fileID: 8148219855864767768}
   m_Layer: 0
   m_Name: ChangeTileHasObject
   m_TagString: Untagged
@@ -109,6 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1e8f904367271445977cfe7a520486a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemy: {fileID: 0}
 --- !u!65 &8821339855069902074
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -122,14 +124,27 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 439
+    m_Bits: 951
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.27153215, y: 1.177686, z: 1}
-  m_Center: {x: 0, y: -0.1501773, z: 0}
+  m_Size: {x: 0.8610128, y: 3.706385, z: 1}
+  m_Center: {x: 0.17618173, y: -1.4145268, z: 0}
+--- !u!114 &8148219855864767768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683607587818178141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1e8f904367271445977cfe7a520486a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemy: {fileID: 4038078222228396643}
 --- !u!1 &761498165393276405
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,7 +1011,6 @@ MonoBehaviour:
   displayPath: 1
   isPlayerInReachToAttack: 0
   movingToAttack: 0
-  enemyID: {fileID: 2057546117978192850}
   currentStateDisplay: {fileID: 4449257367288568029}
   health: {fileID: 9033934426312463712}
 --- !u!136 &5439882214934120200
@@ -1068,7 +1082,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 122
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!1 &4262409378534005170
 GameObject:

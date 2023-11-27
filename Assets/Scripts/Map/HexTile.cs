@@ -79,65 +79,39 @@ public class HexTile : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            hasObjects = true;
-            hasPlayer = true;
-        }
-        else if (other.gameObject.tag == "Enemy")
-        {
-            enemy = other.gameObject.GetComponentInParent<EnemyStateMachine>().gameObject;
-            hasObjects = true;
-            hasEnemy = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            hasObjects = false;
-            hasPlayer = false;
-        }
-        else if (other.gameObject.tag == "Enemy")
-        {
-            enemy = null;
-            hasObjects = false;
-            hasEnemy = false;
-        }
-        else if (other.gameObject.tag == "Village" || other.gameObject.tag == "PlayerCastle")
-        {
-            hasObjects = false;
-        }
-    }
-    //private void OnCollisionEnter(Collision collision)
+    //private void OnTriggerEnter(Collider other)
     //{
-    //    if (collision.gameObject.tag == "Player")
+    //    if (other.gameObject.tag == "Player")
     //    {
     //        hasObjects = true;
-
+    //        hasPlayer = true;
     //    }
-    //    else if(collision.gameObject.tag == "Enemy")
+    //    else if (other.gameObject.tag == "Enemy")
     //    {
-    //        enemy = collision.gameObject;
+    //        Debug.Log("Enemy has entered");
+    //        enemy = other.gameObject.GetComponentInParent<EnemyStateMachine>().gameObject;
     //        hasObjects = true;
     //        hasEnemy = true;
     //    }
     //}
 
-    //private void OnCollisionExit(Collision collision)
+    //private void OnTriggerExit(Collider other)
     //{
-    //    if (collision.gameObject.tag == "Player")
+    //    if (other.gameObject.tag == "Player")
     //    {
     //        hasObjects = false;
+    //        hasPlayer = false;
     //    }
-    //    else if (collision.gameObject.tag == "Enemy")
+    //    else if (other.gameObject.tag == "Enemy")
     //    {
+    //        Debug.Log("Enemy has exit");
+    //        enemy = null;
     //        hasObjects = false;
     //        hasEnemy = false;
-    //        enemy = null;
+    //    }
+    //    else if (other.gameObject.tag == "Village" || other.gameObject.tag == "PlayerCastle")
+    //    {
+    //        hasObjects = false;
     //    }
     //}
 }
